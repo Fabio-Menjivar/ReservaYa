@@ -70,7 +70,3 @@ Si deseas contribuir a mejorar este sistema de reservas académicas, ¡eres bien
 2.  Crea una nueva rama (`git checkout -b feature/mejora-reportes`).
 3.  Realiza tus *commits* siguiendo buenas prácticas (`git commit -m 'feat: Añadir reportes de ocupación de aulas'`).
 4.  Abre un Pull Request claro y conciso.
-
-## 📜 Licencia
-
-[Menciona la Licencia, por ejemplo: Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE.md] para detalles.]
