@@ -60,7 +60,12 @@
                             <td>
                                 @if (!item.EsPasada)
                                 {
-                                    // Botón para CANCELAR
+                                    <a href="@Url.Action("Editar", "GestionReservas", new { id = item.ReservaID })"
+                                       class="btn btn-sm btn-primary"
+                                       style="margin-right: 5px;">
+                                        Editar
+                                    </a>
+
                                     using (Html.BeginForm("Cancelar", "GestionReservas", FormMethod.Post, new { style = "display:inline;" }))
                                     {
                                         @Html.AntiForgeryToken()
@@ -84,7 +89,6 @@
     }
 </div>
 
-@* Estilos básicos para las badges *@
 <style>
     .badge {
         padding: .4em .6em;
