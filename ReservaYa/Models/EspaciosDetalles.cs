@@ -11,10 +11,13 @@ namespace ReservaYa.Models
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.ComponentModel.DataAnnotations;
+
     public partial class EspaciosDetalles
     {
         public int EspacioDetalleID { get; set; }
+        [Required]
+        [DataType(DataType.Currency)]
         public decimal ValorPorHora { get; set; }
         public int EspacioID { get; set; }
     

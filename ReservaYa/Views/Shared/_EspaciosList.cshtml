@@ -1,0 +1,75 @@
+﻿@model List<ReservaYa.Models.Extras.EspacioViewModel>
+
+@{
+    ViewBag.Title = "Listado de Espacios";
+    // Convertir el ViewBag a un diccionario para obtener el nombre de la categoría
+    var categorias = ((SelectList)ViewBag.CategoriaID)
+        .ToDictionary(c => c.Value, c => c.Text);
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Nombre)</th>
+            <th>@Html.DisplayNameFor(m=> m.FirstOrDefault().CategoriaID)</th>
+            <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Capacidad)</th>
+            <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Direccion)</th>
+            <th>@Html.DisplayNameFor(m => m.FirstOrDefault().UbicacionEnlace)</th>
+            <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Disponible)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(m => item.Nombre)</td>
+
+                    <td>
+                        @{
+                            string categoriaNombre = categorias.ContainsKey(item.CategoriaID.ToString())
+                                ? categorias[item.CategoriaID.ToString()]
+                                : "Sin categoría";
+                        }
+                        @categoriaNombre
+                    </td>
+
+                    <td>@Html.DisplayFor(m => item.Capacidad)</td>
+                    <td>@Html.DisplayFor(m => item.Direccion)</td>
+
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.UbicacionEnlace))
+                        {
+                            <a href="@item.UbicacionEnlace" target="_blank">Ver en mapa</a>
+                        }
+                        else
+                        {
+                            @Html.DisplayName("N/A")
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(m => item.Disponible)
+                    </td>
+
+                    <td>
+                        @Html.ActionLink("Editar", "Update", new { id = item.EspacioIdCifrado }, new { @class = "btn btn-warning btn-sm" })
+                        @Html.Raw(" ")                        
+                        @Html.ActionLink("Detalles", "Index", "EspaciosDetalles", new { idEspacio = item.EspacioIdCifrado }, new { @class = "btn btn-info btn-sm" })
+                        @Html.Raw(" ")
+                        @Html.ActionLink("Eliminar", "Delete", new { id = item.EspacioIdCifrado }, new { @class = "btn btn-danger btn-sm" })
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">No hay espacios registrados</td>
+            </tr>
+        }
+    </tbody>
+</table>

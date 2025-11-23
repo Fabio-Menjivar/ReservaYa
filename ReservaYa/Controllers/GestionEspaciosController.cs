@@ -1,4 +1,6 @@
 ﻿using ReservaYa.Models;
+using ReservaYa.Models.Extras;
+using ReservaYa.Services;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,6 +16,7 @@ namespace ReservaYa.Controllers
     {
         // GET: GestionEspacios
         private readonly DEVELOSERSEntities db = new DEVELOSERSEntities();
+        private readonly EspaciosVMConvertService transform = new EspaciosVMConvertService();
 
         public ActionResult Index()
         {
@@ -22,36 +25,44 @@ namespace ReservaYa.Controllers
         public ActionResult Homepage()
         {
             List<Espacios> todos = db.Espacios.AsNoTracking().ToList();
-            return View(todos);
+            //convertir a VM
+            var espaciosVM= transform.Convert(todos);
+            ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre");          
+            return View(espaciosVM);
         }
 
-        public ActionResult Create() 
+        public ActionResult Create()
         {
+            //crear nuevo usuario
+            Espacios espacio = new Espacios() 
+            {   ImagenPrev="",
+                Disponible=false
+            };
+            var espaciosVM = transform.Convert(espacio);
 
             // Cargar categorías para el dropdown
             ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre");
-            return View();
+            return View(espaciosVM);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Espacios espacio)
+        public ActionResult Create(EspacioViewModel espacio)
         {
             if (ModelState.IsValid)
             {
-                espacio.ImagenPrev=string.Empty;
-                espacio.Disponible=false;
-                db.Espacios.Add(espacio);
+                espacio.ImagenPrev = null;
+                espacio.Disponible = false;
+                //TODO: convertir view model a model
+                var model = transform.Reverse(espacio);
+                 //Guardamos cambios
+                db.Espacios.Add(model);
                 db.SaveChanges();
                 /*
                  * Después de SaveChanges(), Entity Framework actualiza el objeto espacio en memoria,
                  * incluyendo la propiedad EspacioID recién generada.
                  */
-
-                return RedirectToAction("Index");
-                //TODO: APARATADO AGREGAR IMAGENES
-                //si todo va bien que vaya a la aprtado de agregar imagenes
-                //return RedirectToAction("CreateAddImages", new { id = espacio.EspacioID });
+                return RedirectToAction("Homepage");
             }
 
 
@@ -59,103 +70,75 @@ namespace ReservaYa.Controllers
             ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre", espacio.CategoriaID);
             return View(espacio);
         }
-        public ActionResult Update(int? id)
+        public ActionResult Update(string id)
         {
-            if (id == null) { return new HttpNotFoundResult();}
+            if (id == null) { return new HttpNotFoundResult(); }
+            //Buscar si existe
+            var espacio = db.Espacios.Find(EncriptarService.DescriptarId(id));
+            //Convertimos
+            var resultVM = transform.Convert(espacio);
             // Cargar categorías para el dropdown
-            var espacio = db.Espacios.Find(id);
-            ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre",espacio.CategoriaID);
-            return View(espacio); //busca y regresa
+            ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre", espacio.CategoriaID);
+            return View(resultVM); //busca y regresa
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Update(Espacios espacio)
+        public ActionResult Update(EspacioViewModel espacio)
         {
             if (ModelState.IsValid)
             {
                 var original = db.Espacios.Find(espacio.EspacioID);
-                if (original == null){ return HttpNotFound(); }
+                if (original == null) { return HttpNotFound(); }
 
                 // Copia los valores del modelo recibido al original rastreado por EF
-                db.Entry(original).CurrentValues.SetValues(espacio);
+                db.Entry(original).CurrentValues.SetValues(transform.Reverse(espacio));
                 db.SaveChanges();
-
-                return RedirectToAction("Index");
+                return RedirectToAction("Homepage");
 
             }
-
             // Si hay errores, recargamos el dropdown
             ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre", espacio.CategoriaID);
-            return View(espacio);                
+            return View(espacio);
         }
         // GET: Espacios/Delete/5
-        public ActionResult Delete(int? id)
+        [HttpGet]
+        public ActionResult Delete(string id)
         {
-            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (!id.Any()|| id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            var espacio = db.Espacios.Find(id);
+            var espacio = db.Espacios.Find(EncriptarService.DescriptarId(id));
             if (espacio == null) return HttpNotFound();
-
+            var espacioVM = transform.Convert(espacio);
+            //cifrado por parametro
+            espacioVM.EspacioIdCifrado = id;
             // Puedes pasar el modelo directamente a la vista para mostrar la info
-            return View(espacio);
+            return View(espacioVM);
         }
 
         // POST: Espacios/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id)
+        public ActionResult Delete(EspacioViewModel espacio) //todo : borrar espacios de todos los rincones existentes
         {
-            var espacio = db.Espacios.Find(id);
-            if (espacio == null) return HttpNotFound();
-
-            db.Espacios.Remove(espacio);
+            var espacioSerch = db.Espacios.Find(espacio.EspacioID);
+            if (espacioSerch == null) return HttpNotFound(); //Preferiblemente que retorne a donde estaba con mensaje de error
+            db.Espacios.Remove(espacioSerch);
             db.SaveChanges();
-
-            return RedirectToAction("Index"); // Redirige a la lista después de eliminar
+            return RedirectToAction("Homepage"); // Redirige a la lista después de eliminar
         }
 
-
-
-        public ActionResult CreateAddImages(int? id)
+        public ActionResult DetallesEspacio()
         {
-            var espacio = db.Espacios.Find(id);
-            if (espacio == null)
-            {
-                return HttpNotFound();
-            }
-            //4to param ,selecciona por def esa categoria
-            var cat = db.Categorias.Find(espacio.CategoriaID);
-            ViewBag.CategoriaNombre = cat.Nombre;
-            return View(espacio);
+            //TODO
+            /*
+             partial view de 
+                *valor x hora
+                *categoria
+             */
+
+            //viewbag lo necesario*
+
+            return View();
         }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult CreateAddImages(int EspacioID, HttpPostedFileBase portada01)
-        {
-            var espacio = db.Espacios.Find(EspacioID);
-            if (espacio == null)
-            {
-                return HttpNotFound();
-            }
-            string folderPath = Server.MapPath("~/Content/Uploads/Espacios/Images" + EspacioID);
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-
-            if (portada01 != null)
-            {
-                string filePath = Path.Combine(folderPath, Path.GetFileName(portada01.FileName));
-                portada01.SaveAs(filePath);
-                espacio.ImagenPrev = "/Content/Uploads/Espacios/Images/" + EspacioID + "/" + Path.GetFileName(portada01.FileName);
-            }
-            espacio.Disponible = true; // ahora el espacio está listo para mostrarse
-            //Y esto que significa , es un update?
-            db.Entry(espacio).State = EntityState.Modified;
-            db.SaveChanges();
-
-            return RedirectToAction("Details", new { id = espacio.EspacioID });
-        }
-
     }
 }

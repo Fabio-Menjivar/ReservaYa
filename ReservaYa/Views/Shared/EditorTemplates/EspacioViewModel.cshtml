@@ -1,0 +1,72 @@
+﻿@model ReservaYa.Models.Extras.EspacioViewModel
+
+@{
+    Layout = null;
+}
+
+<fieldset>
+    @if (ViewData["EsEdicion"] as bool? == true)
+    {
+        <h3>Modo Edicion</h3>
+    }
+    else
+    {
+        <h3>Modo Creación</h3>
+    }
+    
+    <div>
+        @Html.LabelFor(m => m.Nombre)
+        @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Nombre)
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.CategoriaID, "Categoría")
+        @Html.DropDownListFor(m => m.CategoriaID, (SelectList)ViewBag.Categorias, "Seleccione una categoría", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.CategoriaID)
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.Capacidad)
+        @Html.TextBoxFor(m => m.Capacidad, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Capacidad)
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.Direccion)
+        @Html.TextBoxFor(m => m.Direccion, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Direccion)
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.UbicacionEnlace, "Enlace de Google Maps")
+        @Html.TextBoxFor(m => m.UbicacionEnlace, new { @type = "url", @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.UbicacionEnlace)
+    </div>
+
+        @Html.HiddenFor(m => m.EspacioID) @*// POR DEF ES 0*@
+        @Html.HiddenFor(x => x.ImagenPrev)
+        @Html.HiddenFor(x => x.Disponible)
+</fieldset>
+
+<fieldset>
+    <legend>Información complementaria</legend>
+
+    <div>
+        @Html.LabelFor(m => m.Estacionamiento, "¿Cuenta con estacionamiento?")
+        @Html.CheckBoxFor(m => m.Estacionamiento)
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.Sanitarios, "¿Hay sanitarios disponibles cerca?")
+        @Html.CheckBoxFor(m => m.Sanitarios)
+    </div>
+
+    <div>
+        @Html.LabelFor(m => m.AccesoSillaRuedas, "¿Se puede acceder con silla de ruedas?")
+        @Html.CheckBoxFor(m => m.AccesoSillaRuedas)
+    </div>
+</fieldset>
+
+
+

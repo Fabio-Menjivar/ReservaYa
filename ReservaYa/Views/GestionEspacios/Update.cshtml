@@ -1,8 +1,10 @@
-﻿@model ReservaYa.Models.Espacios
+﻿@model ReservaYa.Models.Extras.EspacioViewModel
 
 @{
     ViewBag.Title = "Update";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var viewData = new ViewDataDictionary { { "EsEdicion", true } };
+
 }
 
 <h2>Update</h2>
@@ -10,60 +12,10 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+    
+    //Shared / Espacios [formulario]
+    @Html.EditorForModel(new { ViewData = viewData })
 
-    <fieldset>
-        <legend>Actualiza tus datos</legend>
-
-        @Html.HiddenFor(m=> m.EspacioID)
-
-        <div>
-            @Html.LabelFor(m => m.Nombre)
-            @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
-        </div>
-
-        <div>
-            @Html.LabelFor(m => m.CategoriaID, "Categoría")
-            @Html.DropDownList("CategoriaID", null, "Seleccione una categoría", new { @class = "form-control" })
-        </div>
-
-        <div>
-            @Html.LabelFor(m => m.Capacidad)
-            @Html.TextBoxFor(m => m.Capacidad, new { @class = "form-control" })
-        </div>
-
-        <div>
-            @Html.LabelFor(m => m.Direccion)
-            @Html.TextBoxFor(m => m.Direccion, new { @class = "form-control" })
-        </div>
-
-        <div>
-            @Html.LabelFor(m => m.UbicacionEnlace, "Enlace de Google Maps")
-            @Html.TextBoxFor(m => m.UbicacionEnlace, new { @type = "url", @class = "form-control" })
-        </div>
-
-        <!--Se agregara Posteriormente en si todo es valido-->
-        @Html.Hidden("ImagenPrev", string.Empty)
-        <!--Incialmente falso por que falta completar mas campos del formulario-->
-        @Html.Hidden("Disponible", false)
-
-    </fieldset>
-
-    <fieldset>
-        <legend>Informacion complementaria</legend>
-        <div>
-            @Html.LabelFor(m => m.Estacionamiento, "¿Cuenta con Estacionamiento?")
-            @Html.CheckBoxFor(m => m.Estacionamiento)
-        </div>
-        <div>
-            @Html.LabelFor(m => m.Sanitarios, "¿Hay sanitarios disponibles cerca?")
-            @Html.CheckBoxFor(m => m.Sanitarios)
-        </div>
-
-        <div>
-            @Html.LabelFor(m => m.AccesoSillaRuedas, "¿Se puede acceder con silla de ruedas?")
-            @Html.CheckBoxFor(m => m.AccesoSillaRuedas)
-        </div>
-    </fieldset>
 
     <button type="submit" class="btn btn-primary">Guardar</button>
     <a href="@Url.Action("Homepage")" class="btn btn-secondary">Cancelar</a>

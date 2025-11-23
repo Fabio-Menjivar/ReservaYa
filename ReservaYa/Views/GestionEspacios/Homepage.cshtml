@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ReservaYa.Models.Espacios>
+﻿@model List<ReservaYa.Models.Extras.EspacioViewModel>
 
 @{
     ViewBag.Title = "Panel de reservas";
@@ -8,95 +8,8 @@
 <h1>Inicio</h1>
 
 <p>
-    @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-info" })
+    @{Html.RenderPartial("_CrearEspacio");}
+
 </p>
 
-@if (Model.Count() == 0)
-{
-    <h3 class="text-secondary">!No hay nada!, Comience Ahora</h3>
-}
-
-<table class="table">
-    <tr>
-        <th hidden>
-            @Html.DisplayNameFor(model => model.EspacioID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Nombre)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.CategoriaID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Capacidad)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Direccion)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.UbicacionEnlace)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Estacionamiento)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Sanitarios)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.AccesoSillaRuedas)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.ImagenPrev)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Disponible)
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td hidden>
-                @Html.DisplayFor(modelItem => item.EspacioID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoriaID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Capacidad)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Direccion)
-            </td>
-            <td>
-                <a href="@Html.DisplayFor(modelItem => item.UbicacionEnlace)" target="_blank" rel=" nofollow noreferrer">Link</a>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estacionamiento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sanitarios)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AccesoSillaRuedas)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImagenPrev)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Disponible)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Update", new { id = item.EspacioID }, new { @class = "btn btn-warning" }) |
-                @Html.ActionLink("Details", "Mostrar" ,"EspaciosDetalles",new { id = item.EspacioID }, new { @class = "btn btn-info" }) |
-                @Html.ActionLink("Delete", "Delete", new { id = item.EspacioID }, new { @class = "btn btn-danger" })
-            </td>
-        </tr>
-    }
-
-
-</table>
+@{ Html.RenderPartial("_EspaciosList",Model);}

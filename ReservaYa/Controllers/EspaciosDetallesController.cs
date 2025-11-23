@@ -1,44 +1,93 @@
 ﻿using ReservaYa.Models;
 using ReservaYa.Models.Extras;
 using ReservaYa.Services;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 
 namespace ReservaYa.Controllers
-{////Servicio que relaciona , categorias, fechas disponibles ,espacio detalles ,categorias
+{
     public class EspaciosDetallesController : Controller
-    {              
-        private EspacioDetallesDto _EspacioDetallesDto;
-        public ActionResult Mostrar(int? id) 
-        {                       
-            if (id == null) return new HttpNotFoundResult();
+    {
+        private EspacioDetallesVMConvertService _transform = new EspacioDetallesVMConvertService();
+        private string _nombre;        
+        public ActionResult Index(string idEspacio) // cifrado
+        {
+            if (idEspacio== null || idEspacio.Equals(string.Empty)) { return new HttpStatusCodeResult(HttpStatusCode.Conflict); }
 
-            //servicio auxialiar
-            _EspacioDetallesDto = DetailsEspacioService.Buscar(id);
+            int idEspacioDecd = EncriptarService.DescriptarId(idEspacio);
+                        
+            ViewBag.EspacioId = idEspacio; // valor incriptado para redireccionar
 
-            var bd = new DEVELOSERSEntities();
+            using (var db = new DEVELOSERSEntities())
+            {
+                var espacio = db.Espacios.AsNoTracking().Where(x => x.EspacioID == idEspacioDecd).FirstOrDefault();
+                var EspacioDT = db.EspaciosDetalles.AsNoTracking().Where(x => x.EspacioID == idEspacioDecd).FirstOrDefault();
 
-            //Datos auxiliares relevantes a Espacios
-            ViewBag.FechasDp = _EspacioDetallesDto.FechasDisponibles;
-            ViewBag.FechasDpId = _EspacioDetallesDto.FechasDisponiblesIds;
-            ViewBag.CategoriaName = _EspacioDetallesDto.NombreCategoria;
-            ViewBag.EspaciosDtId = _EspacioDetallesDto.EspacioDetalleId;
-            ViewBag.EspaciosDtVh = _EspacioDetallesDto.ValorPorHora;
+                _nombre = espacio.Nombre;
+                ViewBag.Name = _nombre;
+                if (EspacioDT != null)
+                {
+                    ViewBag.ExisteDetalle = true; //validamos si esta vacio                    
+                    var model = _transform.ToViewModel(EspacioDT);
+                    return View(model);
+                }
+                else
+                    ViewBag.ExisteDetalle = false;
+                    return View();
 
-            //Mandamos un modelo para visualizar algunos datos
-            var espacio = bd.Espacios
-            .AsNoTracking()
-            .FirstOrDefault(x => x.EspacioID == _EspacioDetallesDto.EspacioId);
 
-            if (espacio == null)
-                return new HttpNotFoundResult();
+            }
 
-            return View(espacio);
-
+            
         }
+
+        public ActionResult Nuevo(string id) //incriptado
+        {                                    
+            return View(new EspacioDetalleViewModel { IdEspacioEncriptada = id ,Nombre = _nombre});
+        }
+
+        [ValidateAntiForgeryToken]
+        [HttpPost]      
+        public ActionResult Nuevo(EspacioDetalleViewModel espacioDT) 
+        {
+            if (ModelState.IsValid)
+            {
+                //guardado
+                using (var db = new DEVELOSERSEntities())
+                {
+                    //solucionamos el problema
+                    EspaciosDetalles espacio = new EspaciosDetalles
+                    {
+                        ValorPorHora = espacioDT.ValorXHora,
+                        EspacioID = EncriptarService.DescriptarId(espacioDT.IdEspacioEncriptada),                        
+                    };
+
+                    db.EspaciosDetalles.Add(espacio);
+                    db.SaveChanges();
+                }
+            }
+            else             
+                return View(espacioDT);
+           
+            //Retorno con exito            
+            return RedirectToAction("Index",espacioDT.IdEspacioEncriptada);
+        }
+
+
+        public ActionResult Editar()
+        {
+            return View();
+        }
+
+        public ActionResult Editar( string idEspacio)
+        {
+            return View();
+        }
+        public ActionResult Eliminar()
+        {
+            return View();
+        }
+
     }
 }
