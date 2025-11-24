@@ -18,7 +18,14 @@ public class ReservaEspaciosModelo
     [Required(ErrorMessage = "La hora es obligatoria.")]
     [Display(Name = "Hora de Inicio")]
     [DataType(DataType.Time)]
-    public TimeSpan Hora { get; set; }
+    public TimeSpan Hora { get; set; } // Representa HoraInicio
+
+    // PROPIEDAD AÑADIDA: Hora de Fin
+    [Required(ErrorMessage = "La hora de fin es obligatoria.")]
+    [Display(Name = "Hora de Fin")]
+    [DataType(DataType.Time)]
+    public TimeSpan HoraFin { get; set; }
+
 
     [Required(ErrorMessage = "Debe especificar el número de personas.")]
     [Range(1, 1000, ErrorMessage = "La capacidad mínima es 1 persona.")]

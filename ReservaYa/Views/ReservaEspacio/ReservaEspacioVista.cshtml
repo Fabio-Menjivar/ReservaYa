@@ -48,6 +48,12 @@
             </div>
 
             <div class="col-md-6">
+                @Html.LabelFor(model => model.HoraFin, new { @class = "form-label" })
+                @Html.TextBoxFor(model => model.HoraFin, new { @class = "form-control", type = "time" })
+                @Html.ValidationMessageFor(model => model.HoraFin, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="col-md-6">
                 @Html.LabelFor(model => model.Personas, new { @class = "form-label" })
                 @Html.TextBoxFor(model => model.Personas, new
                {

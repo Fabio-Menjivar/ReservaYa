@@ -18,31 +18,21 @@ namespace ReservaYa.Controllers
         // ---------------------------------------------------------------------
         public async Task<ActionResult> MisReservas()
         {
-            // ... VALIDACIÓN Y OBTENCIÓN DE usuarioIdActual (Se mantiene igual) ...
             if (Session["UsuarioID"] == null)
             {
                 return RedirectToAction("Login", "Account");
             }
             int usuarioIdActual = (int)Session["UsuarioID"];
 
-            // MODIFICACIÓN CLAVE EN LA CONSULTA:
             var reservasDelUsuario = await (
                 from r in _context.Reservas
-
-                    // 1. Unir Reserva con la tabla intermedia (ReservasFechasDisponibles)
                 join rfd in _context.ReservasFechasDisponibles
                 on r.ReservaFechaID equals rfd.ReservaFechaID
-
-                // 2. Unir la tabla intermedia con Espacios
                 join e in _context.Espacios
                 on rfd.EspacioID equals e.EspacioID
-
-                // 3. Unir la tabla intermedia con FechasDisponibles
                 join fd in _context.FechasDisponibles
                 on rfd.FechaDisponibleID equals fd.FechaDisponibleID
-
-                where r.UsuarioID == usuarioIdActual // Filtro principal
-
+                where r.UsuarioID == usuarioIdActual
                 orderby fd.Fecha descending, fd.HoraInicio descending
                 select new ReservaUsuarioViewModel
                 {
@@ -55,27 +45,27 @@ namespace ReservaYa.Controllers
                 }
             ).ToListAsync();
 
-            // 4. Lógica para marcar si la reserva ya pasó
             reservasDelUsuario.ForEach(res =>
             {
                 var fechaCompleta = res.FechaReserva.Date + res.HoraInicio;
                 res.EsPasada = fechaCompleta < DateTime.Now;
             });
 
-            // 5. Retorna la vista MisReservas.cshtml
             return View(reservasDelUsuario);
         }
 
-        //EDITAR
+        // ---------------------------------------------------------------------
+        // ACCIÓN 2: Editar(int id) - Carga la reserva para edición (GET)
+        // ---------------------------------------------------------------------
         public ActionResult Editar(int id)
         {
             var reserva = _context.Reservas.FirstOrDefault(r => r.ReservaID == id);
             if (reserva == null) return HttpNotFound();
 
             var rfd = _context.ReservasFechasDisponibles
-                              .Include(x => x.FechasDisponibles)
-                              .Include(x => x.Espacios)
-                              .FirstOrDefault(x => x.ReservaFechaID == reserva.ReservaFechaID);
+                .Include(x => x.FechasDisponibles)
+                .Include(x => x.Espacios)
+                .FirstOrDefault(x => x.ReservaFechaID == reserva.ReservaFechaID);
 
             if (rfd == null) return HttpNotFound();
 
@@ -91,20 +81,31 @@ namespace ReservaYa.Controllers
 
             // Para dropdown de espacios
             ViewBag.Espacios = _context.Espacios
-                                       .Select(e => new SelectListItem
-                                       {
-                                           Value = e.EspacioID.ToString(),
-                                           Text = e.Nombre
-                                       }).ToList();
+                .Select(e => new SelectListItem
+                {
+                    Value = e.EspacioID.ToString(),
+                    Text = e.Nombre
+                }).ToList();
 
             return View(vm);
         }
 
+        // ---------------------------------------------------------------------
+        // ACCIÓN 3: Editar(ReservaUsuarioViewModel model, int? EspacioID) [HttpPost]
+        //           SOLUCIÓN FINAL: Usamos int? para controlar el binding
+        // ---------------------------------------------------------------------
         [HttpPost]
-        public ActionResult Editar(ReservaUsuarioViewModel model, int EspacioID)
+        public ActionResult Editar(ReservaUsuarioViewModel model, int? EspacioID) // 👈 CORRECCIÓN CLAVE: int?
         {
+            // 1. VALIDACIÓN EXPLÍCITA para mostrar el mensaje de error solicitado
+            if (!EspacioID.HasValue || EspacioID.Value <= 0)
+            {
+                ModelState.AddModelError("EspacioID", "Por favor, seleccione un espacio de la lista.");
+            }
+
             if (!ModelState.IsValid)
             {
+                // Recargar ViewBag si hay errores de validación
                 ViewBag.Espacios = _context.Espacios
                     .Select(e => new SelectListItem
                     {
@@ -114,17 +115,20 @@ namespace ReservaYa.Controllers
                 return View(model);
             }
 
+            // A partir de aquí, EspacioID tiene un valor válido
+            int espacioIdSeleccionado = EspacioID.Value;
+
             var reserva = _context.Reservas.FirstOrDefault(r => r.ReservaID == model.ReservaID);
             if (reserva == null) return HttpNotFound();
 
             var rfd = _context.ReservasFechasDisponibles
-                              .Include(f => f.FechasDisponibles)
-                              .FirstOrDefault(f => f.ReservaFechaID == reserva.ReservaFechaID);
+                .Include(f => f.FechasDisponibles)
+                .FirstOrDefault(f => f.ReservaFechaID == reserva.ReservaFechaID);
 
             if (rfd == null) return HttpNotFound();
 
             // 1️⃣ Actualizar Espacio
-            rfd.EspacioID = EspacioID;
+            rfd.EspacioID = espacioIdSeleccionado;
 
             // 2️⃣ Actualizar Fecha y Horas
             rfd.FechasDisponibles.Fecha = model.FechaReserva;
@@ -133,7 +137,11 @@ namespace ReservaYa.Controllers
 
             // 3️⃣ Recalcular monto
             TimeSpan duracion = model.HoraFin - model.HoraInicio;
-            decimal precioHora = 5; // ← si tienes precio por espacio, se pone aquí
+
+            // Obtener el precio por hora del ESPACIO SELECCIONADO
+            var detalleEspacio = _context.EspaciosDetalles.FirstOrDefault(d => d.EspacioID == espacioIdSeleccionado);
+            decimal precioHora = detalleEspacio?.ValorPorHora ?? 5.0m;
+
             reserva.MontoTotal = (decimal)duracion.TotalHours * precioHora;
 
             _context.SaveChanges();
@@ -144,13 +152,13 @@ namespace ReservaYa.Controllers
 
 
         // ---------------------------------------------------------------------
-        // ACCIÓN 2: Cancelar una reserva (Lógica de eliminación en DB)
+        // ACCIÓN 4: Cancelar una reserva (Lógica de eliminación en DB)
         // ---------------------------------------------------------------------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Cancelar(int id)
         {
-            // 1. VALIDACIÓN DE SESIÓN Y SEGURIDAD
+            // ... (Código sin cambios)
             if (Session["UsuarioID"] == null)
             {
                 TempData["Error"] = "Sesión expirada. Por favor, inicia sesión de nuevo.";
@@ -160,10 +168,9 @@ namespace ReservaYa.Controllers
 
             try
             {
-                // 2. ENCONTRAR Y VALIDAR PROPIEDAD DE LA RESERVA
                 var reserva = await _context.Reservas
-                                            .Where(r => r.ReservaID == id && r.UsuarioID == usuarioIdActual)
-                                            .FirstOrDefaultAsync();
+                    .Where(r => r.ReservaID == id && r.UsuarioID == usuarioIdActual)
+                    .FirstOrDefaultAsync();
 
                 if (reserva == null)
                 {
@@ -173,21 +180,25 @@ namespace ReservaYa.Controllers
 
                 int reservaFechaId = (int)reserva.ReservaFechaID;
 
-                // 3. ELIMINAR REGISTROS DEPENDIENTES
-
                 var reservaFechaDisponible = await _context.ReservasFechasDisponibles
                     .Where(rfd => rfd.ReservaFechaID == reservaFechaId)
                     .FirstOrDefaultAsync();
 
                 if (reservaFechaDisponible != null)
                 {
+                    var fechaDisponible = await _context.FechasDisponibles
+                        .Where(fd => fd.FechaDisponibleID == reservaFechaDisponible.FechaDisponibleID)
+                        .FirstOrDefaultAsync();
+
                     _context.ReservasFechasDisponibles.Remove(reservaFechaDisponible);
+
+                    if (fechaDisponible != null)
+                    {
+                        _context.FechasDisponibles.Remove(fechaDisponible);
+                    }
                 }
 
-                // 6. ELIMINAR LA RESERVA PRINCIPAL
                 _context.Reservas.Remove(reserva);
-
-                // 7. GUARDAR CAMBIOS EN LA BASE DE DATOS
                 await _context.SaveChangesAsync();
 
                 TempData["Mensaje"] = $"La reserva #{id} fue cancelada y el espacio liberado.";
@@ -200,8 +211,14 @@ namespace ReservaYa.Controllers
             return RedirectToAction("MisReservas");
         }
 
+        // Liberación de recursos de la BD
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
-
-
-
 }
