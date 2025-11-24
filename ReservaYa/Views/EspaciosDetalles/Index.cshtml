@@ -1,15 +1,17 @@
 ﻿@model ReservaYa.Models.Extras.EspacioDetalleViewModel
 @{
         Layout = "~/Views/Shared/_Layout.cshtml";
-        var id = ViewBag.EspacioId;        
+        var id = (string) ViewBag.EspacioId;        
 }
 
 @*Menu de acciones independiente  -- Hacer vistas parciales*@ 
         <div>
             @if (!(ViewBag.ExisteDetalle))
             {
-                @Html.ActionLink("Crear nuev@", "Nuevo", new { id = id }, new { @class = "btn btn-info" })
+                @Html.ActionLink("Crear nuev@", "Nuevo", new { idEspacio = id}, new { @class = "btn btn-info" })
             }
+            @Html.ActionLink("Regresar","Homepage","GestionEspacios", new { idEspacio = id },new {@class = "btn btn-success" })
+
         </div>
 
 <article>
@@ -26,9 +28,8 @@
             <tbody>
                 <tr>                    
                     <td>@Html.DisplayFor(x => x.ValorXHora)</td>
-                    <td>
-                        @Html.ActionLink("Actualizar", "Actualizar", new { id = id }, new { @class = "btn btn-success" })
-                        @Html.ActionLink("Eliminar", "Eliminar", new { id =id }, new { @class = "btn btn-danger" })
+                    <td>                        
+                        @Html.ActionLink("Eliminar", "Eliminar", new { idEspacio = id }, new { @class = "btn btn-danger" })
                     </td>
                 </tr>
             </tbody>

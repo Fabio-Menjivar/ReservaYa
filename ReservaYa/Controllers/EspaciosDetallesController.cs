@@ -10,6 +10,7 @@ namespace ReservaYa.Controllers
     public class EspaciosDetallesController : Controller
     {
         private EspacioDetallesVMConvertService _transform = new EspacioDetallesVMConvertService();
+        
         private string _nombre;        
         public ActionResult Index(string idEspacio) // cifrado
         {
@@ -35,16 +36,12 @@ namespace ReservaYa.Controllers
                 else
                     ViewBag.ExisteDetalle = false;
                     return View();
-
-
-            }
-
-            
+            }            
         }
-
-        public ActionResult Nuevo(string id) //incriptado
-        {                                    
-            return View(new EspacioDetalleViewModel { IdEspacioEncriptada = id ,Nombre = _nombre});
+        public ActionResult Nuevo(string idEspacio) //incriptado
+        {
+            var model = new EspacioDetalleViewModel { IdEspacioEncriptada = idEspacio};
+            return View(model);
         }
 
         [ValidateAntiForgeryToken]
@@ -62,31 +59,31 @@ namespace ReservaYa.Controllers
                         ValorPorHora = espacioDT.ValorXHora,
                         EspacioID = EncriptarService.DescriptarId(espacioDT.IdEspacioEncriptada),                        
                     };
-
                     db.EspaciosDetalles.Add(espacio);
                     db.SaveChanges();
                 }
             }
             else             
                 return View(espacioDT);
-           
+
+            var idEspacio = espacioDT.IdEspacioEncriptada;
             //Retorno con exito            
-            return RedirectToAction("Index",espacioDT.IdEspacioEncriptada);
+            return RedirectToAction("Index","EspaciosDetalles", new { idEspacio = idEspacio });
         }
 
+        public ActionResult Eliminar(string idEspacio)
+        {
+            using (var db = new DEVELOSERSEntities()) 
+            {
+                var id = EncriptarService.DescriptarId(idEspacio);
+                var espacioDT = db.EspaciosDetalles.Where(x=>x.EspacioID == id).FirstOrDefault();
 
-        public ActionResult Editar()
-        {
-            return View();
-        }
+                db.EspaciosDetalles.Remove(espacioDT);
+                db.SaveChanges();
 
-        public ActionResult Editar( string idEspacio)
-        {
-            return View();
-        }
-        public ActionResult Eliminar()
-        {
-            return View();
+                return RedirectToAction("Index", "EspaciosDetalles", new { idEspacio = idEspacio });
+
+            }
         }
 
     }

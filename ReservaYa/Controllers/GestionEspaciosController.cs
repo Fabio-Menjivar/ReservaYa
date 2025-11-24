@@ -121,7 +121,12 @@ namespace ReservaYa.Controllers
         public ActionResult Delete(EspacioViewModel espacio) //todo : borrar espacios de todos los rincones existentes
         {
             var espacioSerch = db.Espacios.Find(espacio.EspacioID);
+            var espaciodt = db.EspaciosDetalles.Where(x=> x.EspacioID == espacio.EspacioID).FirstOrDefault();
             if (espacioSerch == null) return HttpNotFound(); //Preferiblemente que retorne a donde estaba con mensaje de error
+            //eliminamos en casaca manualmente
+            if(espaciodt != null)
+                db.EspaciosDetalles.Remove(espaciodt);
+
             db.Espacios.Remove(espacioSerch);
             db.SaveChanges();
             return RedirectToAction("Homepage"); // Redirige a la lista después de eliminar
