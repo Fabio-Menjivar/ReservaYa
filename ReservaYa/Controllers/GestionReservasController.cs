@@ -66,10 +66,87 @@ namespace ReservaYa.Controllers
             return View(reservasDelUsuario);
         }
 
-       // ---------------------------------------------------------------------
-// ACCIÓN 2: Cancelar una reserva (Lógica de eliminación en DB)
-// ---------------------------------------------------------------------
-[HttpPost]
+        //EDITAR
+        public ActionResult Editar(int id)
+        {
+            var reserva = _context.Reservas.FirstOrDefault(r => r.ReservaID == id);
+            if (reserva == null) return HttpNotFound();
+
+            var rfd = _context.ReservasFechasDisponibles
+                              .Include(x => x.FechasDisponibles)
+                              .Include(x => x.Espacios)
+                              .FirstOrDefault(x => x.ReservaFechaID == reserva.ReservaFechaID);
+
+            if (rfd == null) return HttpNotFound();
+
+            var vm = new ReservaUsuarioViewModel
+            {
+                ReservaID = reserva.ReservaID,
+                MontoTotal = reserva.MontoTotal,
+                NombreEspacio = rfd.Espacios.Nombre,
+                FechaReserva = rfd.FechasDisponibles.Fecha,
+                HoraInicio = rfd.FechasDisponibles.HoraInicio,
+                HoraFin = rfd.FechasDisponibles.HoraFin
+            };
+
+            // Para dropdown de espacios
+            ViewBag.Espacios = _context.Espacios
+                                       .Select(e => new SelectListItem
+                                       {
+                                           Value = e.EspacioID.ToString(),
+                                           Text = e.Nombre
+                                       }).ToList();
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public ActionResult Editar(ReservaUsuarioViewModel model, int EspacioID)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Espacios = _context.Espacios
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.EspacioID.ToString(),
+                        Text = e.Nombre
+                    }).ToList();
+                return View(model);
+            }
+
+            var reserva = _context.Reservas.FirstOrDefault(r => r.ReservaID == model.ReservaID);
+            if (reserva == null) return HttpNotFound();
+
+            var rfd = _context.ReservasFechasDisponibles
+                              .Include(f => f.FechasDisponibles)
+                              .FirstOrDefault(f => f.ReservaFechaID == reserva.ReservaFechaID);
+
+            if (rfd == null) return HttpNotFound();
+
+            // 1️⃣ Actualizar Espacio
+            rfd.EspacioID = EspacioID;
+
+            // 2️⃣ Actualizar Fecha y Horas
+            rfd.FechasDisponibles.Fecha = model.FechaReserva;
+            rfd.FechasDisponibles.HoraInicio = model.HoraInicio;
+            rfd.FechasDisponibles.HoraFin = model.HoraFin;
+
+            // 3️⃣ Recalcular monto
+            TimeSpan duracion = model.HoraFin - model.HoraInicio;
+            decimal precioHora = 5; // ← si tienes precio por espacio, se pone aquí
+            reserva.MontoTotal = (decimal)duracion.TotalHours * precioHora;
+
+            _context.SaveChanges();
+
+            TempData["Mensaje"] = "La reserva fue actualizada correctamente.";
+            return RedirectToAction("MisReservas");
+        }
+
+
+        // ---------------------------------------------------------------------
+        // ACCIÓN 2: Cancelar una reserva (Lógica de eliminación en DB)
+        // ---------------------------------------------------------------------
+        [HttpPost]
 [ValidateAntiForgeryToken]
 public async Task<ActionResult> Cancelar(int id)
 {
@@ -122,5 +199,9 @@ public async Task<ActionResult> Cancelar(int id)
 
     return RedirectToAction("MisReservas");
 }
+
     }
+
+
+
 }

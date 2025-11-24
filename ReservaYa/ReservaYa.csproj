@@ -279,6 +279,7 @@
     <Content Include="Views\EspaciosDetalles\Mostrar.cshtml" />
     <Content Include="Views\ReservaEspacio\ReservaEspacioVista.cshtml" />
     <Content Include="Views\GestionReservas\MisReservas.cshtml" />
+    <Content Include="Views\GestionReservas\Editar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

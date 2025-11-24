@@ -43,6 +43,7 @@
                         <tr>
                             <td>@Html.DisplayFor(modelItem => item.NombreEspacio)</td>
                             <td>@Html.DisplayFor(modelItem => item.FechaReserva)</td>
+
                             <td>
                                 @item.HoraInicio.ToString(@"hh\:mm") - @item.HoraFin.ToString(@"hh\:mm")
                             </td>
@@ -75,6 +76,7 @@
                                             Cancelar
                                         </button>
                                     }
+
                                 }
                                 else
                                 {

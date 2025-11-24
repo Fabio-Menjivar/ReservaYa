@@ -1,0 +1,40 @@
+﻿@model ReservaYa.Models.ReservaUsuarioViewModel
+
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Editar Reserva</h1>
+
+
+    @using (Html.BeginForm())
+    {
+        @Html.HiddenFor(m => m.ReservaID)
+
+        <label>Espacio</label>
+        @Html.DropDownList("EspacioID", (List<SelectListItem>)ViewBag.Espacios, "Seleccione un espacio", new { @class = "form-control" })
+
+        <label>Fecha</label>
+        @Html.TextBoxFor(m => m.FechaReserva, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control" })
+
+        <label>Hora Inicio</label>
+        @Html.TextBoxFor(m => m.HoraInicio, new { type = "time", @class = "form-control" })
+
+        <label>Hora Fin</label>
+        @Html.TextBoxFor(m => m.HoraFin, new { type = "time", @class = "form-control" })
+
+        <br />
+        <button class="btn btn-primary">Guardar Cambios</button>
+    }
+
+</div>
+
+<style>
+    .badge {
+        padding: .4em .6em;
+        font-size: 85%;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: .25rem;
+    }
+</style>

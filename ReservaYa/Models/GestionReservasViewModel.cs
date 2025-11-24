@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace ReservaYa.Models
 {
@@ -30,5 +31,7 @@ namespace ReservaYa.Models
 
         // Propiedad para la lógica de visualización (por ejemplo, permitir cancelar)
         public bool EsPasada { get; set; }
+       
+
     }
 }
