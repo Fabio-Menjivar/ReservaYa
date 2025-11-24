@@ -108,6 +108,12 @@ namespace ReservaYa.Controllers
                 ViewBag.Mensaje = "Todos los campos son obligatorios.";
                 return View();
             }
+            // VALIDACIÓN de edad mínima 18 años
+            if (FechaNacimiento > DateTime.Now.AddYears(-18))
+            {
+                ViewBag.Mensaje = "Debe ser mayor de 18 años para registrarse.";
+                return View();
+            }
 
             byte[] correoBytes = Encoding.UTF8.GetBytes(Correo.Trim());
             byte[] contraBytes = Encoding.UTF8.GetBytes(Contrasena.Trim());
