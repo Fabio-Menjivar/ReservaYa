@@ -290,6 +290,7 @@
     <Content Include="Views\Shared\_EspaciosList.cshtml" />
     <Content Include="Views\Shared\_CrearEspacio.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\Boolean.cshtml" />
+    <Content Include="Views\GestionReservas\Editar.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
