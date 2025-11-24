@@ -1,0 +1,45 @@
+﻿@model ReservaYa.Models.Extras.EspacioDetalleViewModel
+@{
+        Layout = "~/Views/Shared/_Layout.cshtml";
+        var id = ViewBag.EspacioId;        
+}
+
+@*Menu de acciones independiente  -- Hacer vistas parciales*@ 
+        <div>
+            @if (!(ViewBag.ExisteDetalle))
+            {
+                @Html.ActionLink("Crear nuev@", "Nuevo", new { id = id }, new { @class = "btn btn-info" })
+            }
+        </div>
+
+<article>
+    @if (ViewBag.ExisteDetalle)
+    {
+        <header> <h3>Detalles de <span>@Model.Nombre</span></h3></header>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>                    
+                    <th>@Html.LabelFor(x => x.ValorXHora, "Coste por hora")</th>
+                    <th>""</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>                    
+                    <td>@Html.DisplayFor(x => x.ValorXHora)</td>
+                    <td>
+                        @Html.ActionLink("Actualizar", "Actualizar", new { id = id }, new { @class = "btn btn-success" })
+                        @Html.ActionLink("Eliminar", "Eliminar", new { id =id }, new { @class = "btn btn-danger" })
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h2>Cree un nuevo detalle...</h2>
+    }
+</article>            
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

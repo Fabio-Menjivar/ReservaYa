@@ -1,0 +1,25 @@
+﻿@model ReservaYa.Models.Extras.EspacioDetalleViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken();
+
+    <legend>
+        Ingrese el valor por hora de su establecimiento: <strong>@Model.Nombre</strong>
+    </legend>
+
+    <div>
+        @Html.LabelFor(x=> x.ValorXHora,"CostoPorHora")
+        @Html.TextBoxFor(x=> x.ValorXHora);
+        @Html.ValidationMessageFor(x=> x.ValorXHora,"",new {@class = "text-danger"})
+    </div>
+
+    @Html.HiddenFor(x=> x.IdEspacioEncriptada)
+
+    <input type="submit" value="Enviar" class="btn btn-success"/>
+    @Html.ActionLink("Regresar","Index","EspaciosDetalles",new { idEspacio = Model.IdEspacioEncriptada}, new {@class = "btn btn-danger"});
+}

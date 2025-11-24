@@ -1,4 +1,4 @@
-﻿@model ReservaYa.Models.Espacios
+﻿@model ReservaYa.Models.Extras.EspacioViewModel
 
 @{
     ViewBag.Title = "Delete";
@@ -13,8 +13,9 @@
     <p>@Model.Direccion</p>
 </div>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm()) //Mostrar modelo en modo lectura para que al hacer postback Delete por Post reciba no necesario y funcione
 {
+
     @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.EspacioID)
 
