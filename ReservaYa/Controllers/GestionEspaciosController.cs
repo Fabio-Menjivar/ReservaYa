@@ -114,8 +114,6 @@ namespace ReservaYa.Controllers
             return RedirectToAction("Index"); // Redirige a la lista después de eliminar
         }
 
-
-
         public ActionResult CreateAddImages(int? id)
         {
             var espacio = db.Espacios.Find(id);
