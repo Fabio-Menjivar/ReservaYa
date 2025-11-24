@@ -14,10 +14,22 @@ namespace ReservaYa.Controllers
         // GET: Login/Login
         public ActionResult Login()
         {
+            if (Session["UsuarioID"] != null)
+            {
+                int? rolId = Session["RolID"] as int?;
+                if (rolId == 1)
+                {
+                    return RedirectToAction("Create", "GestionEspacios");
+                }
+                else if (rolId == 2)
+                {
+                    return RedirectToAction("Index", "GestionEspacios");
+                }
+            }
             return View();
         }
 
-        // POST: Login/Login
+        // POST: Login/Login (Lógica de Comparación de Bytes Corregida)
         [HttpPost]
         public ActionResult Login(string Correo, string Contrasena)
         {
@@ -27,29 +39,56 @@ namespace ReservaYa.Controllers
                 return View();
             }
 
-            byte[] correoBytes = Encoding.UTF8.GetBytes(Correo.Trim());
-            byte[] contraBytes = Encoding.UTF8.GetBytes(Contrasena.Trim());
-
-            // Traemos todos los usuarios activos y filtramos en memoria (AsEnumerable()).
-            // Esto es necesario porque SequenceEqual en byte[] no es soportado por LINQ to Entities.
+            // 1. Buscamos el usuario por Correo (buscamos por string limpio en la DB).
             var usuario = db.Usuarios
                 .Where(u => u.Activo == true)
-                .AsEnumerable() // Fuerza la ejecución de la consulta hasta aquí y continua en memoria
+                .AsEnumerable()
                 .FirstOrDefault(u =>
-                    ((IEnumerable<byte>)u.Correo).SequenceEqual(correoBytes) &&
-                    ((IEnumerable<byte>)u.Contrasena).SequenceEqual(contraBytes));
-            
+                    Encoding.UTF8.GetString(u.Correo).Trim()
+                        .Equals(Correo.Trim(), StringComparison.OrdinalIgnoreCase)
+                );
 
-            if (usuario != null)
+            if (usuario == null)
             {
-                Session["UsuarioID"] = usuario.UsuarioID;
-                Session["NombreUsuario"] = $"{usuario.Nombres} {usuario.Apellidos}";
-
-                // *** REDIRECCIÓN***
-                // Acción: Homepage, Controlador: GestionEspacios
-                return RedirectToAction("Index", "GestionEspacios");
+                // Si el usuario no existe o está inactivo.
+                ViewBag.Mensaje = "Correo o contraseña incorrectos.";
+                return View();
             }
 
+            // 2. Comparamos la Contraseña (En Bytes)
+
+            // Convertimos la contraseña ingresada a su arreglo de bytes (como se hizo en el registro).
+            byte[] contraBytesInput = Encoding.UTF8.GetBytes(Contrasena.Trim());
+
+            // Limpiamos los arrays de bytes de relleno (padding) si existen
+            // Esto es crucial para la comparación binaria
+            byte[] contraDB = usuario.Contrasena.Where(b => b != 0).ToArray();
+            byte[] contraInput = contraBytesInput.Where(b => b != 0).ToArray();
+
+            // 3. Verificamos la igualdad de los bytes limpios
+            if (contraDB.SequenceEqual(contraInput))
+            {
+                // INICIO DE SESIÓN EXITOSO
+                Session["UsuarioID"] = usuario.UsuarioID;
+                Session["NombreUsuario"] = $"{usuario.Nombres} {usuario.Apellidos}";
+                Session["RolID"] = usuario.RolID;
+
+                // Redirección por Rol
+                if (usuario.RolID == 1)
+                {
+                    return RedirectToAction("Homepage", "GestionEspacios");
+                }
+                else if (usuario.RolID == 2)
+                {
+                    return RedirectToAction("Index", "GestionEspacios");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            // Si llegamos aquí, la contraseña binaria no coincidió.
             ViewBag.Mensaje = "Correo o contraseña incorrectos.";
             return View();
         }
@@ -60,7 +99,7 @@ namespace ReservaYa.Controllers
             return View();
         }
 
-        // POST: Login/Register
+        // POST: Login/Register 
         [HttpPost]
         public ActionResult Register(string Nombres, string Apellidos, DateTime FechaNacimiento, string Correo, string Contrasena)
         {
@@ -73,17 +112,18 @@ namespace ReservaYa.Controllers
             byte[] correoBytes = Encoding.UTF8.GetBytes(Correo.Trim());
             byte[] contraBytes = Encoding.UTF8.GetBytes(Contrasena.Trim());
 
-            // Traemos todos los correos activos y filtramos en memoria.
+            // Búsqueda de correo existente usando string limpio
             bool correoExiste = db.Usuarios
-                .AsEnumerable() // Ejecuta la consulta antes de filtrar
-                .Any(u => ((IEnumerable<byte>)u.Correo).SequenceEqual(correoBytes));
+                .AsEnumerable()
+                .Any(u => Encoding.UTF8.GetString(u.Correo).Trim()
+                    .Equals(Correo.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (correoExiste)
             {
                 ViewBag.Mensaje = "Ya existe un usuario con ese correo.";
                 return View();
             }
-            
+
 
             Usuarios nuevo = new Usuarios
             {
@@ -106,6 +146,7 @@ namespace ReservaYa.Controllers
         public ActionResult Logout()
         {
             Session.Clear();
+            Session.Abandon();
             return RedirectToAction("Login");
         }
     }
