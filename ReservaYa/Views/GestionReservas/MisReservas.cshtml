@@ -4,100 +4,277 @@
     ViewBag.Title = "Mis Reservas";
 }
 
-<div class="container mt-5">
-    <h1 class="mb-4 text-center">Gestión de Mis Reservas</h1>
-    <hr />
-
-    @if (TempData["Mensaje"] != null)
-    {
-        <div class="alert alert-success" role="alert">@TempData["Mensaje"]</div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger" role="alert">@TempData["Error"]</div>
-    }
-
-    @if (Model == null || !Model.Any())
-    {
-        <div class="alert alert-info text-center">
-            Aún no tienes reservas activas. <a href="@Url.Action("ReservaEspacioVista", "ReservaEspacio")">¡Haz una ahora!</a>
-        </div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <thead class="thead-light">
-                    <tr>
-                        <th>@Html.DisplayNameFor(model => model.First().NombreEspacio)</th>
-                        <th>@Html.DisplayNameFor(model => model.First().FechaReserva)</th>
-                        <th>@Html.DisplayNameFor(model => model.First().HoraInicio) - @Html.DisplayNameFor(model => model.First().HoraFin)</th>
-                        <th>@Html.DisplayNameFor(model => model.First().MontoTotal)</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(modelItem => item.NombreEspacio)</td>
-                            <td>@Html.DisplayFor(modelItem => item.FechaReserva)</td>
-                            <td>
-                                @item.HoraInicio.ToString(@"hh\:mm") - @item.HoraFin.ToString(@"hh\:mm")
-                            </td>
-                            <td>@Html.DisplayFor(modelItem => item.MontoTotal)</td>
-                            <td>
-                                @if (item.EsPasada)
-                                {
-                                    <span class="badge badge-secondary" style="background-color: #6c757d; color: white;">Finalizada</span>
-                                }
-                                else
-                                {
-                                    <span class="badge badge-success" style="background-color: #28a745; color: white;">Activa</span>
-                                }
-                            </td>
-                            <td>
-                                @if (!item.EsPasada)
-                                {
-                                    <a href="@Url.Action("Editar", "GestionReservas", new { id = item.ReservaID })"
-                                       class="btn btn-sm btn-primary"
-                                       style="margin-right: 5px;">
-                                        Editar
-                                    </a>
-
-                                    using (Html.BeginForm("Cancelar", "GestionReservas", FormMethod.Post, new { style = "display:inline;" }))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@item.ReservaID" />
-                                        <button type="submit" class="btn btn-sm btn-danger"
-                                                onclick="return confirm('¿Está seguro de que desea cancelar la reserva de @item.NombreEspacio el @item.FechaReserva.ToShortDateString()?');">
-                                            Cancelar
-                                        </button>
-                                    }
-                                }
-                                else
-                                {
-                                    <span>N/A</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-</div>
+@* Importamos FontAwesome para iconos (opcional, pero recomendado para el look profesional) *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
 <style>
-    .badge {
-        padding: .4em .6em;
-        font-size: 85%;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-        border-radius: .25rem;
+    /* 1. Fondo General */
+    body {
+        background-image: url('../../Content/Uploads/Espacios/Images/background.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente limpia */
     }
+
+    /* 2. Tarjeta Principal (Efecto Glassmorphism Claro) */
+    .pro-card {
+        background: rgba(255, 255, 255, 0.95); /* Blanco casi opaco */
+        backdrop-filter: blur(10px); /* Difuminado del fondo */
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-top: 50px;
+        margin-bottom: 50px;
+    }
+
+    /* 3. Títulos y Cabeceras */
+    .page-title {
+        font-weight: 700;
+        color: #2c3e50;
+        letter-spacing: -0.5px;
+    }
+
+    .section-divider {
+        border-top: 2px solid #f1f3f5;
+        margin: 20px 0 30px 0;
+    }
+
+    /* 4. Tabla Profesional */
+    .table-pro {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px; /* Espacio entre filas */
+    }
+
+        .table-pro thead th {
+            border: none;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #95a5a6; /* Gris suave */
+            padding: 15px;
+        }
+
+        .table-pro tbody tr {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+            .table-pro tbody tr:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            }
+
+        .table-pro td {
+            border: none;
+            padding: 20px 15px;
+            vertical-align: middle;
+            color: #495057;
+            border-top: 1px solid #f8f9fa;
+        }
+
+            .table-pro td:first-child {
+                border-top-left-radius: 8px;
+                border-bottom-left-radius: 8px;
+                font-weight: 600; /* Resaltar el nombre del espacio */
+                color: #2c3e50;
+            }
+
+            .table-pro td:last-child {
+                border-top-right-radius: 8px;
+                border-bottom-right-radius: 8px;
+            }
+
+    /* 5. Badges Modernos (Píldoras) */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
+    /* 6. Botones de Acción */
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-edit {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+        .btn-edit:hover {
+            background-color: #1976d2;
+            color: white;
+        }
+
+    .btn-cancel {
+        background-color: #fbe9e7;
+        color: #d32f2f;
+    }
+
+        .btn-cancel:hover {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #6c757d;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #dee2e6;
+        }
 </style>
+
+<div class="container">
+    <div class="pro-card">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="page-title m-0">Mis Reservas</h2>
+            @* Botón opcional para nueva reserva alineado a la derecha *@
+            <a href="@Url.Action("ReservaEspacioVista", "ReservaEspacio")" class="btn btn-primary rounded-pill shadow-sm">
+                <i class="fas fa-plus"></i> Nueva Reserva
+            </a>
+        </div>
+
+        <div class="section-divider"></div>
+
+        @if (TempData["Mensaje"] != null)
+        {
+            <div class="alert alert-success border-0 shadow-sm rounded-lg" role="alert">
+                <i class="fas fa-check-circle mr-2"></i> @TempData["Mensaje"]
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger border-0 shadow-sm rounded-lg" role="alert">
+                <i class="fas fa-exclamation-circle mr-2"></i> @TempData["Error"]
+            </div>
+        }
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-state">
+                <i class="far fa-calendar-times"></i>
+                <h4>No tienes reservas activas</h4>
+                <p class="text-muted">Parece que aún no has reservado ningún espacio.</p>
+                <a href="@Url.Action("ReservaEspacioVista", "ReservaEspacio")" class="btn btn-outline-primary mt-3">
+                    Explorar Espacios
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-pro">
+                    <thead>
+                        <tr>
+                            <th>Espacio</th>
+                            <th>Fecha</th>
+                            <th>Horario</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th class="text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @* Icono decorativo *@
+                                        <div style="width: 4px; height: 40px; background: #007bff; margin-right: 15px; border-radius: 2px;"></div>
+                                        <div>
+                                            <span style="display:block; font-size:1rem;">@Html.DisplayFor(modelItem => item.NombreEspacio)</span>
+                                            <small class="text-muted">ID: @item.ReservaID</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <i class="far fa-calendar-alt text-muted mr-1"></i>
+                                    @item.FechaReserva.ToShortDateString()
+                                </td>
+                                <td>
+                                    <i class="far fa-clock text-muted mr-1"></i>
+                                    @item.HoraInicio.ToString(@"hh\:mm") - @item.HoraFin.ToString(@"hh\:mm")
+                                </td>
+                                <td style="font-family: 'Consolas', monospace; font-weight: 600;">
+                                    @Html.DisplayFor(modelItem => item.MontoTotal)
+                                </td>
+                                <td>
+                                    @if (item.EsPasada)
+                                    {
+                                        <span class="status-badge status-inactive">
+                                            <i class="fas fa-check"></i> Finalizada
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-clock"></i> Activa
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    @if (!item.EsPasada)
+                                    {
+                                        <a href="@Url.Action("Editar", "GestionReservas", new { id = item.ReservaID })"
+                                           class="btn-icon btn-edit"
+                                           title="Editar Reserva">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </a>
+
+                                        using (Html.BeginForm("Cancelar", "GestionReservas", FormMethod.Post, new { style = "display:inline;" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.ReservaID" />
+                                            <button type="submit" class="btn-icon btn-cancel ml-2"
+                                                    title="Cancelar Reserva"
+                                                    onclick="return confirm('¿Está seguro de cancelar esta reserva?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">--</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
