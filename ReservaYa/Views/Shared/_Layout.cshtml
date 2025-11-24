@@ -10,30 +10,55 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
+    @{
+        // 1. Definir variables de estado de sesión
+        int? usuarioId = Session["UsuarioID"] as int?; // Null si no está logueado
+        int rolId = (int?)Session["RolID"] ?? 0; // 1: Admin, 2: Cliente, 0: No logueado
+    }
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
         <div class="container">
-            <!-- Logo -->
             <img src="~/Content/Uploads/Espacios/Images/icon32.png" />
             <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+                              aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <!-- Contenido izquierda-->
                 <ul class="navbar-nav me-auto mb-2 mb-sm-0">
-                    <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Panel de Administrador", "Homepage", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Gestiona tus reservas", "MisReservas", "GestionReservas", new { area = "" }, new { @class = "nav-link" })</li>
-                    <!--Esta podria ser una vista intermedia y no la vista directa de creacion*-->
-                    <!--Esta podria ser una vista intermedia y no la vista directa de creacion*-->
 
-                    <li>@Html.ActionLink("Crea tu propio espacio", "Create", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                    @* 🏠 HOME: Visible solo si NO es administrador (rolId != 1) *@
+                    @if (rolId != 1)
+                    {
+                        <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+
+                    @* 🛠️ Enlaces de Administrador (RolID = 1) *@
+                    @if (rolId == 1)
+                    {
+                        <li>@Html.ActionLink("Panel de Administrador", "Homepage", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Crea tu propio espacio", "Create", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+
+                    @* 🧑‍💻 Enlaces de Cliente (RolID = 2) *@
+                    @if (rolId == 2)
+                    {
+                        <li>@Html.ActionLink("Gestiona tus reservas", "MisReservas", "GestionReservas", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
                 </ul>
 
-                <!-- Contenido derecha -->
                 <ul class="navbar-nav ms-auto mb-2 mb-sm-0">
-                    <li>@Html.ActionLink("Iniciar Sesión", "Login", "Login", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Crear cuenta nueva", "Register", "Login", new { area = "" }, new { @class = "nav-link" })</li>
+                    @* 🔒 Iniciar Sesión / Registrarse: Visible solo si NO hay usuario logueado *@
+                    @if (usuarioId == null)
+                    {
+                        <li>@Html.ActionLink("Iniciar Sesión", "Login", "Login", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Crear cuenta nueva", "Register", "Login", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
+                    @* 🚪 Cerrar Sesión: Visible si hay usuario logueado *@
+                    else
+                    {
+                        <li class="nav-item">
+                            @Html.ActionLink($"Cerrar Sesión ({Session["NombreUsuario"]})", "Logout", "Login", new { area = "" }, new { @class = "nav-link" })
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
@@ -48,28 +73,36 @@
         <div class="container">
             <div class="row">
 
-                <!-- Logo / Nombre -->
                 <div class="col-md-4 mb-4">
                     <h3 class="fw-bold text-uppercase">DEVELO₱ERS</h3>
                     <p class="text-muted">Reserva Inteligente, Espacios Eficientes, tales como Salones educativos y Laboratorios Informáticos</p>
                 </div>
 
-                <!-- Links -->
                 <div class="col-md-4 mb-4">
                     <h5 class="fw-bold">Enlaces</h5>
                     <ul class="list-unstyled">
-                        <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
-                        <li>@Html.ActionLink("Panel de Administrador", "Homepage", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
-                        <li>@Html.ActionLink("Gestiona tus reservas", "MisReservas", "GestionReservas", new { area = "" }, new { @class = "nav-link" })</li>
-                        <!--Esta podria ser una vista intermedia y no la vista directa de creacion*-->
-                        <!--Esta podria ser una vista intermedia y no la vista directa de creacion*-->
+                        @* HOME: Visible solo si NO es administrador (rolId != 1) *@
+                        @if (rolId != 1)
+                        {
+                            <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                        }
 
-                        <li>@Html.ActionLink("Crea tu propio espacio", "Create", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                        @* Lógica de Admin en el Footer *@
+                        @if (rolId == 1)
+                        {
+                            <li>@Html.ActionLink("Panel de Administrador", "Homepage", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                            <li>@Html.ActionLink("Crea tu propio espacio", "Create", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
+                        }
+
+                        @* Lógica de Cliente en el Footer *@
+                        @if (rolId == 2)
+                        {
+                            <li>@Html.ActionLink("Gestiona tus reservas", "MisReservas", "GestionReservas", new { area = "" }, new { @class = "nav-link" })</li>
+                        }
 
                     </ul>
                 </div>
 
-                <!-- Contacto -->
                 <div class="col-md-4 mb-4">
                     <h5 class="fw-bold">Contáctanos</h5>
                     <p class="mb-1"><i class="bi bi-envelope"></i> reservaya34@gmail.com</p>
