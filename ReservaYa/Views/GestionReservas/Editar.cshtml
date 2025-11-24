@@ -1,0 +1,175 @@
+﻿@model ReservaYa.Models.ReservaUsuarioViewModel
+
+@{
+    ViewBag.Title = "Editar Reserva";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+<style>
+    
+    body {
+        background-image: url('../../Content/Uploads/Espacios/Images/background.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    
+    .edit-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        margin-top: 60px;
+        max-width: 600px; 
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    
+    .custom-input {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        height: auto;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+        .custom-input:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+   
+    .input-group-text {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-right: none;
+        border-radius: 8px 0 0 8px;
+        color: #6c757d;
+    }
+
+  
+    .input-with-icon {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-left: none;
+    }
+
+    .btn-save {
+        background-color: #007bff;
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: 50px;
+        transition: transform 0.2s;
+    }
+
+        .btn-save:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+    .btn-back {
+        color: #6c757d;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .btn-back:hover {
+            color: #343a40;
+            text-decoration: none;
+        }
+
+    .header-line {
+        width: 50px;
+        height: 3px;
+        background-color: #007bff;
+        margin: 10px auto 30px;
+        border-radius: 2px;
+    }
+</style>
+
+<div class="container">
+    <div class="edit-card">
+        <div class="text-center mb-4">
+            <h2 style="font-weight: 700; color: #2c3e50;">Editar Reserva</h2>
+            <div class="header-line"></div>
+            <p class="text-muted small">Modifique los detalles de su reserva a continuación</p>
+        </div>
+
+        @using (Html.BeginForm())
+        {
+            @Html.HiddenFor(m => m.ReservaID)
+            @Html.AntiForgeryToken() @* Buena práctica de seguridad *@
+
+            @* 1. Selección de Espacio *@
+            <div class="form-group mb-4">
+                <label class="form-label">Espacio Solicitado</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-building"></i></span>
+                    </div>
+                    @Html.DropDownList("EspacioID", (List<SelectListItem>)ViewBag.Espacios, "Seleccione un espacio", new { @class = "form-control custom-input input-with-icon" })
+                </div>
+            </div>
+
+            @* 2. Fecha *@
+            <div class="form-group mb-4">
+                <label class="form-label">Fecha de Reserva</label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                    </div>
+                    @Html.TextBoxFor(m => m.FechaReserva, "{0:yyyy-MM-dd}", new { type = "date", @class = "form-control custom-input input-with-icon" })
+                </div>
+            </div>
+
+            @* 3. Horarios (En Grid para ahorrar espacio) *@
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Hora Inicio</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="far fa-clock"></i></span>
+                        </div>
+                        @Html.TextBoxFor(m => m.HoraInicio, new { type = "time", @class = "form-control custom-input input-with-icon" })
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Hora Fin</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-history"></i></span>
+                        </div>
+                        @Html.TextBoxFor(m => m.HoraFin, new { type = "time", @class = "form-control custom-input input-with-icon" })
+                    </div>
+                </div>
+            </div>
+
+            @* 4. Botones de Acción *@
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                @* Botón de cancelar para mejorar UX *@
+                <a href="@Url.Action("MisReservas")" class="btn-back">
+                    <i class="fas fa-arrow-left mr-1"></i> Cancelar
+                </a>
+
+                <button type="submit" class="btn btn-primary btn-save shadow">
+                    <i class="fas fa-save mr-2"></i> Guardar Cambios
+                </button>
+            </div>
+        }
+    </div>
+</div>
