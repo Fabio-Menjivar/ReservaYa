@@ -118,20 +118,47 @@ namespace ReservaYa.Controllers
         // POST: Espacios/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(EspacioViewModel espacio) //todo : borrar espacios de todos los rincones existentes
+        public ActionResult Delete(EspacioViewModel espacio)
         {
-            var espacioSerch = db.Espacios.Find(espacio.EspacioID);
-            var espaciodt = db.EspaciosDetalles.Where(x=> x.EspacioID == espacio.EspacioID).FirstOrDefault();
-            if (espacioSerch == null) return HttpNotFound(); //Preferiblemente que retorne a donde estaba con mensaje de error
-            //eliminamos en casaca manualmente
-            if(espaciodt != null)
-                db.EspaciosDetalles.Remove(espaciodt);
+            var espacioOriginal = db.Espacios.Find(espacio.EspacioID);
+            if (espacioOriginal == null)
+                return HttpNotFound();
 
-            db.Espacios.Remove(espacioSerch);
+            // 1. BORRAR Reservas que dependen del Espacio (indirectamente)
+            var reservasRelacionadas = db.Reservas
+                .Where(r => r.ReservaFechaID != null &&
+                            db.ReservasFechasDisponibles
+                            .Any(x => x.ReservaFechaID == r.ReservaFechaID
+                                   && x.EspacioID == espacio.EspacioID))
+                .ToList();
+
+            foreach (var r in reservasRelacionadas)
+                db.Reservas.Remove(r);
+
+            // 2. BORRAR ReservasFechasDisponibles del Espacio
+            var reservasFechas = db.ReservasFechasDisponibles
+                .Where(x => x.EspacioID == espacio.EspacioID)
+                .ToList();
+
+            foreach (var rf in reservasFechas)
+                db.ReservasFechasDisponibles.Remove(rf);
+
+            // 3. BORRAR EspaciosDetalles
+            var detalles = db.EspaciosDetalles
+                .Where(x => x.EspacioID == espacio.EspacioID)
+                .ToList();
+
+            foreach (var d in detalles)
+                db.EspaciosDetalles.Remove(d);
+
+            // 4. BORRAR Espacio
+            db.Espacios.Remove(espacioOriginal);
+
+            // GUARDAR TODO
             db.SaveChanges();
-            return RedirectToAction("Homepage"); // Redirige a la lista después de eliminar
-        }
 
+            return RedirectToAction("Homepage");
+        }
         public ActionResult DetallesEspacio()
         {
             //TODO
