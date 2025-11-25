@@ -11,8 +11,7 @@ namespace ReservaYa.Models
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class Espacios
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -21,15 +20,13 @@ namespace ReservaYa.Models
             this.EspaciosDetalles = new HashSet<EspaciosDetalles>();
             this.ReservasFechasDisponibles = new HashSet<ReservasFechasDisponibles>();
         }
-        
+    
         public int EspacioID { get; set; }
         public string Nombre { get; set; }
-
         public int CategoriaID { get; set; }
-                
-        public int Capacidad { get; set; }                
-        public string Direccion { get; set; }                
-        public string UbicacionEnlace { get; set; }        
+        public int Capacidad { get; set; }
+        public string Direccion { get; set; }
+        public string UbicacionEnlace { get; set; }
         public bool Estacionamiento { get; set; }
         public bool Sanitarios { get; set; }
         public bool AccesoSillaRuedas { get; set; }
