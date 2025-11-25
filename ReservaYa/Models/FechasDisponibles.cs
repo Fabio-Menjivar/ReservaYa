@@ -25,6 +25,7 @@ namespace ReservaYa.Models
         public System.TimeSpan HoraInicio { get; set; }
         public System.TimeSpan HoraFin { get; set; }
         public bool Disponible { get; set; }
+        public string Tags { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ReservasFechasDisponibles> ReservasFechasDisponibles { get; set; }

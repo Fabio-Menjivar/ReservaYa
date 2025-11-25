@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="DevelosersModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="DevelosersModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Categorias">
           <Key>
             <PropertyRef Name="CategoriaID" />
@@ -45,6 +45,7 @@
           <Property Name="HoraInicio" Type="time" Precision="7" Nullable="false" />
           <Property Name="HoraFin" Type="time" Precision="7" Nullable="false" />
           <Property Name="Disponible" Type="bit" Nullable="false" />
+          <Property Name="Tags" Type="nvarchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="FechasOcupadas">
           <Key>
@@ -247,8 +248,7 @@
             <End Role="Usuarios" EntitySet="Usuarios" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="DevelosersModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -298,6 +298,7 @@
           <Property Name="HoraFin" Type="Time" Nullable="false" Precision="7" />
           <Property Name="Disponible" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="ReservasFechasDisponibles" Relationship="Self.FK_ReservasFechasDisponibles_FechasDisponibles" FromRole="FechasDisponibles" ToRole="ReservasFechasDisponibles" />
+          <Property Name="Tags" Type="String" MaxLength="30" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="FechasOcupadas">
           <Key>
@@ -562,6 +563,7 @@
           <EntitySetMapping Name="FechasDisponibles">
             <EntityTypeMapping TypeName="DevelosersModel.FechasDisponibles">
               <MappingFragment StoreEntitySet="FechasDisponibles">
+                <ScalarProperty Name="Tags" ColumnName="Tags" />
                 <ScalarProperty Name="FechaDisponibleID" ColumnName="FechaDisponibleID" />
                 <ScalarProperty Name="Fecha" ColumnName="Fecha" />
                 <ScalarProperty Name="HoraInicio" ColumnName="HoraInicio" />

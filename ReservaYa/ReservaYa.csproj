@@ -132,6 +132,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\FechasDisponiblesController.cs" />
     <Compile Include="Controllers\ReservaDetallesController.cs" />
     <Compile Include="Controllers\EspaciosDetallesController.cs" />
     <Compile Include="Controllers\GestionEspaciosController.cs" />
@@ -285,7 +286,6 @@
     <Content Include="Views\EspaciosDetalles\Index.cshtml" />
     <Content Include="Views\EspaciosDetalles\Nuevo.cshtml" />
     <Content Include="Views\Shared\DisplayTemplates\DateTime.cshtml" />
-    <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\EspacioViewModel.cshtml" />
     <Content Include="Views\Shared\_EspaciosList.cshtml" />
     <Content Include="Views\Shared\_CrearEspacio.cshtml" />
@@ -297,6 +297,7 @@
     <Folder Include="Content\Images\" />
     <Folder Include="Content\Uploads\Espacios\Docs\" />
     <Folder Include="Content\Uploads\Espacios\Videos\" />
+    <Folder Include="Views\FechasDisponibles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
