@@ -1,0 +1,70 @@
+﻿
+@model ReservaYa.Models.CambiarCredencialesViewModel
+
+@{
+    ViewBag.Title = "Cambiar Correo y Contraseña";
+}
+
+<div class="container mt-5">
+
+    <h2 class="text-center mb-4">Cambiar Correo y Contraseña</h2>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">@TempData["Mensaje"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <h4>Actualizar Correo</h4>
+        <hr />
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.CorreoActual)
+            @Html.TextBoxFor(m => m.CorreoActual, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.NuevoCorreo)
+            @Html.TextBoxFor(m => m.NuevoCorreo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.NuevoCorreo, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ConfirmarCorreo)
+            @Html.TextBoxFor(m => m.ConfirmarCorreo, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.ConfirmarCorreo, "", new { @class = "text-danger" })
+        </div>
+
+
+        <h4 class="mt-4">Actualizar Contraseña</h4>
+        <hr />
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ContrasenaActual)
+            @Html.PasswordFor(m => m.ContrasenaActual, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.ContrasenaActual, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.NuevaContrasena)
+            @Html.PasswordFor(m => m.NuevaContrasena, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.NuevaContrasena, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.ConfirmarContrasena)
+            @Html.PasswordFor(m => m.ConfirmarContrasena, new { @class = "form-control" })
+            @Html.ValidationMessageFor(m => m.ConfirmarContrasena, "", new { @class = "text-danger" })
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block mt-3">Guardar Cambios</button>
+    }
+</div>

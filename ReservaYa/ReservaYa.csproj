@@ -132,6 +132,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\CuentaController.cs" />
     <Compile Include="Controllers\FechasDisponiblesController.cs" />
     <Compile Include="Controllers\EspaciosDetallesController.cs" />
     <Compile Include="Controllers\GestionEspaciosController.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\CambiarCredencialesViewModel.cs" />
     <Compile Include="Models\Categorias.cs">
       <DependentUpon>miModelo.tt</DependentUpon>
     </Compile>
@@ -300,6 +302,8 @@
     <Content Include="Views\GestionEspacios\SubirImagen.cshtml" />
     <Content Include="Views\GestionEspacios\CambiarImagen.cshtml" />
     <Content Include="Views\FechasDisponibles\Create.cshtml" />
+    <Content Include="Views\Cuenta\CambiarCredenciales.cshtml" />
+    <Content Include="Views\Cuenta\Perfil.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

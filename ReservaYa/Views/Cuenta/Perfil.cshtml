@@ -1,0 +1,31 @@
+﻿
+@model ReservaYa.Models.Usuarios
+
+@{
+    ViewBag.Title = "Mi Perfil";
+}
+
+<div class="container mt-5">
+
+    <h2 class="text-center mb-4">Mi Perfil</h2>
+
+    <div class="card shadow-sm p-4" style="max-width: 600px; margin: auto;">
+        <h4 class="mb-3">Información Personal</h4>
+
+        <p><strong>Nombre:</strong> @Model.Nombres</p>
+        <p><strong>Correo:</strong> @System.Text.Encoding.UTF8.GetString(Model.Correo)</p>
+        <p><strong>Apellidos:</strong> @Model.Apellidos</p>
+        <p><strong>Fecha de Nacimiento:</strong> @Model.FechaNacimiento</p>
+
+        <hr />
+
+        <div class="text-center">
+            <a href="@Url.Action("CambiarCredenciales", "Cuenta")"
+               class="btn btn-primary btn-lg">
+                Cambiar Correo / Contraseña
+            </a>
+        </div>
+
+    </div>
+
+</div>

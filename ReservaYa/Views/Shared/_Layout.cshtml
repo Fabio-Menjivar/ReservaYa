@@ -59,6 +59,9 @@
                             @Html.ActionLink($"Cerrar Sesión ({Session["NombreUsuario"]})", "Logout", "Login", new { area = "" }, new { @class = "nav-link" })
                         </li>
                     }
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Perfil", "Cuenta")">Mi Perfil</a>
+                    </li>
                 </ul>
             </div>
         </div>
