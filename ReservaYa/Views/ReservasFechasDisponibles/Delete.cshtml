@@ -1,0 +1,47 @@
+﻿@model ReservaYa.Models.Extras.ReservaFechaDisponibleItemVM
+
+@{
+    ViewBag.Title = "Eliminar fecha disponible";
+}
+
+<h2>Eliminar fecha disponible</h2>
+
+<div class="alert alert-danger">
+    <strong>¿Está seguro que desea eliminar esta fecha?</strong>
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Fecha</th>
+        <td>@Model.Fecha.ToString("yyyy-MM-dd")</td>
+    </tr>
+    <tr>
+        <th>Horario</th>
+        <td>@($"{Model.HoraInicio} - {Model.HoraFin}")</td>
+    </tr>
+    <tr>
+        <th>Disponible</th>
+        <td>@(Model.Disponible ? "Sí" : "No")</td>
+    </tr>
+    <tr>
+        <th>Etiquetas</th>
+        <td>@Model.Tags</td>
+    </tr>
+</table>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.ReservaFechaID)
+
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+
+    @Html.ActionLink(
+        "Cancelar",
+        "Index",
+        "ReservasFechasDisponibles",
+        new { idEspacio = ViewBag.IdEspacio },
+        new { @class = "btn btn-secondary" }
+    )
+}

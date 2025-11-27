@@ -1,0 +1,57 @@
+﻿@model ReservaYa.Models.Extras.ReservasFechaDisponiblesViewModel
+
+@{
+    ViewBag.Title = "Fechas Reservadas";
+    int i = 1;
+}
+
+<h2>Fechas para Reservas – @Model.EspacioName</h2>
+
+<div>
+    @Html.ActionLink("Crear nueva fecha","Create", "FechasDisponibles", new { idEspacio = Model.EspacioIdCifrado }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Regresar", "Homepage","GestionEspacios",null, new { @class = "btn btn-primary" })
+</div>
+<br />
+
+@if (!ViewBag.HayRegistros)
+{
+    <div class="alert alert-info">No hay registros aún.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-light">
+                <tr>
+                    <th>#</th>
+                    <th>Fecha</th>
+                    <th>Horario</th>
+                    <th>Disponible</th>
+                    <th>Etiquetas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Fechas)
+                {
+                    var rowClass = item.Disponible ? "" : "table-danger";
+
+                    <tr class="@rowClass">
+                        <td>@(i++)</td>
+                        <td>@item.Fecha.ToString("yyyy-MM-dd")</td>
+                        <td>@($"{item.HoraInicio} - {item.HoraFin}")</td>
+                        <td>@(item.Disponible ? "Sí" : "No")</td>
+                        <td>
+                            @item.Tags
+                        </td>
+                        <td>
+                            @Html.ActionLink("Eliminar", "Delete",
+                                new { id = item.ReservaFechaID },
+                                new { @class = "btn btn-sm btn-danger" })
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

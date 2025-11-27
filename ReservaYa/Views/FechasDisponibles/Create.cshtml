@@ -1,0 +1,48 @@
+﻿@model ReservaYa.Models.Extras.ReservaFechaDisponibleItemVM
+
+@{
+    ViewBag.Title = "Crear Fecha Disponible";
+}
+
+<h2>Crear fecha para reservas – @ViewBag.EspacioName</h2>
+<hr />
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+
+    <input type="hidden" name="EspacioIdCifrado" value="@ViewBag.EspacioIdCifrado" />
+
+    <div class="form-group">
+        @Html.LabelFor(x => x.Fecha)
+        @Html.TextBoxFor(x => x.Fecha, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(x => x.HoraInicio)
+        @Html.TextBoxFor(x => x.HoraInicio, "{0:hh\\:mm}", new { @class = "form-control", type = "time" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(x => x.HoraFin)
+        @Html.TextBoxFor(x => x.HoraFin, "{0:hh\\:mm}", new { @class = "form-control", type = "time" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(x => x.Disponible)
+        @Html.CheckBoxFor(x => x.Disponible)
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(x => x.Tags)
+        @Html.TextBoxFor(x => x.Tags, new { @class = "form-control" })
+    </div>
+
+    <button type="submit" class="btn btn-success">Crear</button>
+
+    @Html.ActionLink("Cancelar", "Index", "ReservasFechasDisponibles",
+        new { idEspacio = ViewBag.EspacioIdCifrado },
+        new { @class = "btn btn-secondary" })
+}

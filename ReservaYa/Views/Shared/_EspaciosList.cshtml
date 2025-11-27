@@ -13,7 +13,7 @@
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Nombre)</th>
-            <th>@Html.DisplayNameFor(m=> m.FirstOrDefault().CategoriaID)</th>
+            <th>@Html.DisplayNameFor(m => m.FirstOrDefault().CategoriaID)</th>
             <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Capacidad)</th>
             <th>@Html.DisplayNameFor(m => m.FirstOrDefault().Direccion)</th>
             <th>@Html.DisplayNameFor(m => m.FirstOrDefault().UbicacionEnlace)</th>
@@ -56,11 +56,28 @@
                     </td>
 
                     <td>
-                        @Html.ActionLink("Editar", "Update", new { id = item.EspacioIdCifrado }, new { @class = "btn btn-warning btn-sm" })
-                        @Html.Raw(" ")                        
-                        @Html.ActionLink("Detalles", "Index", "EspaciosDetalles", new { idEspacio = item.EspacioIdCifrado }, new { @class = "btn btn-info btn-sm" })
-                        @Html.Raw(" ")
-                        @Html.ActionLink("Eliminar", "Delete", new { id = item.EspacioIdCifrado }, new { @class = "btn btn-danger btn-sm" })
+                        @Html.ActionLink(
+        "Detalles",
+        "Mostrar",
+        new { id = item.EspacioIdCifrado },
+        new { @class = "btn btn-info btn-sm" }
+    )
+
+                        @Html.ActionLink(
+                            "Tarifa",
+                            "Index",
+                            "EspaciosDetalles",
+                            new { idEspacio = item.EspacioIdCifrado },
+                            new { @class = "btn btn-primary btn-sm" }
+                        )
+
+                        @Html.ActionLink(
+                            "Calendario",
+                            "Index",
+                            "ReservasFechasDisponibles",
+                            new { idEspacio = item.EspacioIdCifrado },
+                            new { @class = "btn btn-success btn-sm" }
+                        )
                     </td>
                 </tr>
             }

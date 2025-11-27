@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Cambiar Imagen";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h5 class="mb-0">Cambiar Imagen</h5>
+                </div>
+
+                <div class="card-body">
+
+                    <div class="text-center mb-3">
+                        <p class="text-muted">Imagen actual:</p>
+
+                        <img src="@Url.Content($"~/Content/Uploads/Espacios/Images/{ViewBag.ImagenActual}")"
+                             class="img-fluid rounded border shadow-sm"
+                             style="max-height: 180px;" />
+                    </div>
+
+                    @using (Html.BeginForm("CambiarImagen","GestionEspacios", FormMethod.Post,
+                        new { enctype = "multipart/form-data"}))
+                    {
+                        @Html.Hidden("idEspacio", Request["idEspacio"])
+
+                        <div class="mb-3">
+                            <label class="form-label">Seleccione la nueva imagen:</label>
+                            <input type="file" name="archivo" class="form-control" accept=".jpg,.jpeg,.png,.gif" required />
+                        </div>
+
+                        if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <div>@error.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Guardar Cambios
+                        </button>
+
+                        <a href="@Url.Action("Homepage")"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                            Cancelar
+                        </a>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
