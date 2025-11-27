@@ -18,29 +18,38 @@ namespace ReservaYa.Controllers
 
             using (var db = new DEVELOSERSEntities())
             {
-                // Filtramos la tabla intermedia por EspacioID
+                //obtener nombre del espacio 
+                var espacioName = db.Espacios
+                    .AsNoTracking()
+                    .Where(x => x.EspacioID == id)
+                    .Select(x => x.Nombre)
+                    .FirstOrDefault();
+
+                // Cargar relaciones (puede estar vacía)
                 var relaciones = db.ReservasFechasDisponibles
                     .AsNoTracking()
                     .Where(x => x.EspacioID == id)
                     .ToList();
 
+                //Si no hay relaciones → devolver ViewModel sin fechas
                 if (!relaciones.Any())
                 {
                     ViewBag.HayRegistros = false;
-                    return View(new ReservasFechaDisponiblesViewModel());
+
+                    var modelVacio = new ReservasFechaDisponiblesViewModel
+                    {
+                        EspacioIdCifrado = idEspacio,
+                        EspacioName = espacioName,
+                        Fechas = new List<ReservaFechaDisponibleItemVM>()
+                    };
+
+                    return View(modelVacio);
                 }
 
+                //Hay relaciones
                 ViewBag.HayRegistros = true;
 
-                // Obtenemos nombre del espacio
-                var espacioId = relaciones.First().EspacioID;
-
-                var espacioName = db.Espacios.AsNoTracking()
-                                .Where(x => x.EspacioID == espacioId)
-                                .Select(x => x.Nombre)
-                                .FirstOrDefault();
-
-                // JOIN con FechasDisponibles
+                //  JOIN con FechasDisponibles
                 var fechas = from r in relaciones
                              join f in db.FechasDisponibles.AsNoTracking()
                                 on r.FechaDisponibleID equals f.FechaDisponibleID
@@ -51,13 +60,15 @@ namespace ReservaYa.Controllers
                                  Fecha = f.Fecha,
                                  HoraInicio = f.HoraInicio,
                                  HoraFin = f.HoraFin,
-                                 Disponible = f.Disponible
+                                 Disponible = f.Disponible,
+                                 Tags = f.Tags 
                              };
 
-                // Armamos el modelo final
+
+                // Model final
                 var model = new ReservasFechaDisponiblesViewModel
                 {
-                    EspacioId = espacioId,
+                    EspacioIdCifrado = idEspacio,
                     EspacioName = espacioName,
                     Fechas = fechas.ToList()
                 };
@@ -65,5 +76,78 @@ namespace ReservaYa.Controllers
                 return View(model);
             }
         }
+
+        // GET: FechasDisponibles/Delete/5
+        public ActionResult Delete(int id)
+        {
+            using (var db = new DEVELOSERSEntities())
+            {
+                var entidad = db.ReservasFechasDisponibles
+                    .Include("FechasDisponibles")
+                    .Where(x => x.ReservaFechaID == id)
+                    .FirstOrDefault();
+
+                if (entidad == null)
+                    return HttpNotFound();
+
+                var vm = new ReservaFechaDisponibleItemVM
+                {
+                    //nombre propiedad incorrecto ej Tags = entidad.FechaDisponible.Tags 
+                    ReservaFechaID = entidad.ReservaFechaID,
+                    FechaDisponibleID = entidad.FechaDisponibleID,
+                    Fecha = entidad.FechasDisponibles.Fecha,
+                    HoraInicio = entidad.FechasDisponibles.HoraInicio,
+                    HoraFin = entidad.FechasDisponibles.HoraFin,
+                    Disponible = entidad.FechasDisponibles.Disponible,
+                    Tags = entidad.FechasDisponibles.Tags
+                };
+
+                // Para volver a la pantalla anterior
+                ViewBag.IdEspacio = EncriptarService.EncriptarId(entidad.EspacioID);
+                return View(vm);
+            }
+        }
+
+
+
+        // POST: FechasDisponibles/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(ReservaFechaDisponibleItemVM model)
+        {
+            using (var db = new DEVELOSERSEntities())
+            {
+                // Obtiene el registro de la tabla puente (ReservasFechaDisponibles)
+                var reserva = db.ReservasFechasDisponibles
+                    .Where(x => x.ReservaFechaID == model.ReservaFechaID)
+                    .FirstOrDefault();
+
+                if (reserva == null)
+                    return HttpNotFound();
+
+                // Guardamos id del espacio antes de borrar
+                string idEspacioCifrado = EncriptarService.EncriptarId(reserva.EspacioID);
+
+                // Eliminamos primero la relación
+                db.ReservasFechasDisponibles.Remove(reserva);
+
+                // Luego se elimina la fecha disponible asociada
+                var fecha = db.FechasDisponibles
+                    .Where(f => f.FechaDisponibleID == reserva.FechaDisponibleID)
+                    .FirstOrDefault();
+
+                if (fecha != null)
+                    db.FechasDisponibles.Remove(fecha);
+
+                // Guardar cambios
+                db.SaveChanges();
+
+                return RedirectToAction(
+                    "Mostrar",
+                    "GestionEspacios", new { id = idEspacioCifrado });
+            }
+        }
+
+
     }
 }

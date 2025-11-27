@@ -1,0 +1,50 @@
+﻿@{
+    ViewBag.Title = "Subir Imagen";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h5 class="mb-0">Subir Imagen</h5>
+                </div>
+
+                <div class="card-body">
+
+                    @using (Html.BeginForm("SubirImagen","GestionEspacios",FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.Hidden("idEspacio", Request["idEspacio"])
+
+                        <div class="mb-3">
+                            <label class="form-label">Seleccione una imagen:</label>
+                            <input type="file" name="archivo" class="form-control" accept=".jpg,.jpeg,.png,.gif" required />
+                        </div>
+
+                        if (!ViewData.ModelState.IsValid)
+                        {
+                            <div class="alert alert-danger">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <div>@error.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+
+                        <button type="submit" class="btn btn-success w-100">
+                            Subir Imagen
+                        </button>
+
+                        <a href="@Url.Action("Index", new { idEspacio = Request["idEspacio"] })"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                            Cancelar
+                        </a>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,21 +1,47 @@
 ﻿@model ReservaYa.Models.Extras.ReservaFechaDisponibleItemVM
 
 @{
-    ViewBag.Title = "Eliminar fecha";
+    ViewBag.Title = "Eliminar fecha disponible";
 }
 
-<h2>¿Eliminar esta fecha reservada?</h2>
+<h2>Eliminar fecha disponible</h2>
 
-<div class="alert alert-warning">
-    <p><strong>Fecha:</strong> @Model.Fecha.ToString("yyyy-MM-dd")</p>
-    <p><strong>Horario:</strong> @Model.HoraInicio - @Model.HoraFin</p>
+<div class="alert alert-danger">
+    <strong>¿Está seguro que desea eliminar esta fecha?</strong>
 </div>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Fecha</th>
+        <td>@Model.Fecha.ToString("yyyy-MM-dd")</td>
+    </tr>
+    <tr>
+        <th>Horario</th>
+        <td>@($"{Model.HoraInicio} - {Model.HoraFin}")</td>
+    </tr>
+    <tr>
+        <th>Disponible</th>
+        <td>@(Model.Disponible ? "Sí" : "No")</td>
+    </tr>
+    <tr>
+        <th>Etiquetas</th>
+        <td>@Model.Tags</td>
+    </tr>
+</table>
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    @Html.HiddenFor(x => x.ReservaFechaID)
+
+    @Html.HiddenFor(m => m.ReservaFechaID)
 
     <button type="submit" class="btn btn-danger">Eliminar</button>
-    @Html.ActionLink("Cancelar", "Index", new { idEspacio = ViewBag.EspacioID }, new { @class = "btn btn-secondary" })
+
+    @Html.ActionLink(
+        "Cancelar",
+        "Index",
+        "ReservasFechasDisponibles",
+        new { idEspacio = ViewBag.IdEspacio },
+        new { @class = "btn btn-secondary" }
+    )
 }

@@ -14,6 +14,24 @@
 
 <h2 class="mb-4">@Model.Nombre</h2>
 
+<!-- MENSAJES DEL CONTROLADOR -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Exito"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+
 <div class="row">
     <!-- ===================== -->
     <!--   COLUMNA IZQUIERDA   -->
@@ -50,8 +68,8 @@
                 <p><strong>Capacidad máxima:</strong> @Model.Capacidad personas</p>
 
                 <p>
-                    <strong>Disponible:</strong>
-                    @Html.DisplayFor(x=>x.Disponible)
+                    <strong>Publicado:</strong>
+                    @Html.DisplayFor(x => x.Disponible)
                 </p>
             </div>
         </div>
@@ -86,20 +104,20 @@
             <h4>Acciones</h4>
 
             @Html.ActionLink("Editar Espacio", "Update",
-                new { id = Model.EspacioIdCifrado },
-                new { @class = "btn btn-warning btn-sm" })
+  new { id = Model.EspacioIdCifrado },
+  new { @class = "btn btn-warning btn-sm" })
 
             @Html.Raw("&nbsp;")
 
-            @Html.ActionLink("Eliminar", "Delete",
-                new { id = Model.EspacioIdCifrado },
-                new { @class = "btn btn-danger btn-sm" })
+            @Html.ActionLink("Eliminar Espacio", "Delete",
+  new { id = Model.EspacioIdCifrado },
+  new { @class = "btn btn-danger btn-sm" })
 
             @Html.Raw("&nbsp;")
 
-            @Html.ActionLink("Almanaque", "Index", "ReservasFechasDisponibles",
-                new { idEspacio = Model.EspacioIdCifrado },
-                new { @class = "btn btn-info btn-sm" })
+            @Html.ActionLink("Administrar fechas", "Index", "ReservasFechasDisponibles",
+  new { idEspacio = Model.EspacioIdCifrado },
+  new { @class = "btn btn-info btn-sm" })
         </div>
 
     </div>
@@ -115,22 +133,57 @@
             </div>
 
             <div class="card-body text-center">
+                @{
+                    string controller = "";
+                }
 
                 @if (!string.IsNullOrEmpty(Model.ImagenPrev))
                 {
-                    <img src="@Model.ImagenPrev" alt="Imagen del espacio"
+                    <img src="@Url.Content($"~/Content/Uploads/Espacios/Images/{Model.ImagenPrev}")"
+                         alt="Imagen del espacio"
                          class="img-fluid rounded border" />
+
+                    controller = "CambiarImagen";
                 }
                 else
                 {
+                    controller = "SubirImagen";
+
                     <div class="text-muted">Sin imagen disponible</div>
                 }
 
-                <a class="btn btn-outline-primary btn-sm mt-3">
-                    Cambiar imagen
-                </a>
+                @Html.ActionLink(
+                    $"{controller}",
+                    $"{controller}",
+                    new { idEspacio = Model.EspacioIdCifrado },
+                    new { @class = "btn btn-outline-primary btn-sm mt-3" }
+                )
 
             </div>
+
+        </div>
+
+        <div class="text-center mt-3">
+
+            @if (Model.Disponible)
+            {
+                @Html.ActionLink(
+                    "Dar de baja",
+                    "CambiarEstado",
+                    new { idEspacio = Model.EspacioIdCifrado, activar = false },
+                    new { @class = "btn btn-danger btn-sm w-100" }
+                )
+            }
+            else
+            {
+                @Html.ActionLink(
+                    "Publicar",
+                    "CambiarEstado",
+                    new { idEspacio = Model.EspacioIdCifrado, activar = true },
+                    new { @class = "btn btn-success btn-sm w-100" }
+                )
+            }
+
         </div>
 
     </div>
@@ -157,7 +210,6 @@
                         <th>Horario</th>
                         <th>Tags</th>
                         <th>Disponible</th>
-                        <th>Acción</th>
                     </tr>
                 </thead>
 
@@ -172,13 +224,6 @@
                             <td>@($"{f.HoraInicio} - {f.HoraFin}")</td>
                             <td>@f.Tags</td>
                             <td>@(f.Disponible ? "Sí" : "No")</td>
-
-                            <td>
-                                <a href="#"
-                                   class="btn btn-outline-primary btn-sm">
-                                    Editar
-                                </a>
-                            </td>
                         </tr>
                     }
                 </tbody>

@@ -296,15 +296,16 @@
     <Content Include="Views\ReservasFechasDisponibles\Delete.cshtml" />
     <Content Include="Views\EspaciosDetalles\Index.cshtml" />
     <Content Include="Views\EspaciosDetalles\Eliminar.cshtml" />
-    <Content Include="Views\EspaciosDetalles\Mostrar.cshtml" />
     <Content Include="Views\EspaciosDetalles\Nuevo.cshtml" />
+    <Content Include="Views\GestionEspacios\SubirImagen.cshtml" />
+    <Content Include="Views\GestionEspacios\CambiarImagen.cshtml" />
+    <Content Include="Views\FechasDisponibles\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\Images\" />
     <Folder Include="Content\Uploads\Espacios\Docs\" />
     <Folder Include="Content\Uploads\Espacios\Videos\" />
-    <Folder Include="Views\FechasDisponibles\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

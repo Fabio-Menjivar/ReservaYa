@@ -18,6 +18,7 @@
 
 
     <button type="submit" class="btn btn-primary">Guardar</button>
-    <a href="@Url.Action("Mostrar")" class="btn btn-secondary">Cancelar</a>
+    @*<a href="@Url.Action("Home")" class="btn btn-secondary">Cancelar</a>*@
+    @Html.ActionLink("Regresar","Mostrar",new {id = Model.EspacioIdCifrado }, new {@class = "btn btn-secondary" })
 }
 

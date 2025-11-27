@@ -7,12 +7,36 @@
 
 <h2>¿Estás seguro de eliminar este espacio?</h2>
 <br />
+<b>Esto incluye , todo registro almacenado hasta la fecha @DateTime.Now.ToString("dd/MMMM/yyyy")</b>
 <br />
-<div>
-    <h4>@Model.Nombre</h4>
-    <p>@Model.Direccion</p>
+<br />
+<div class="container my-4">
+
+    <div class="card shadow-sm border-0 p-3">
+        <div class="row align-items-center">
+
+            <!-- Información del espacio -->
+            <div class="col-md-9">
+                <h4 class="fw-bold mb-1">@Model.Nombre</h4>
+                <p class="text-muted mb-0">@Model.Direccion</p>
+            </div>
+
+            <!-- Imagen -->
+            <div class="col-md-3 text-end">
+                <div style="max-width: 80px;" class="ms-auto">
+                    <img src="@Url.Content($"~/Content/Uploads/Espacios/Images/{Model.ImagenPrev}")"
+                         class="img-fluid rounded shadow-sm border"
+                         alt="Imagen del espacio" />
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>
 
+<br />
+<br />
 @using (Html.BeginForm()) //Mostrar modelo en modo lectura para que al hacer postback Delete por Post reciba no necesario y funcione
 {
 
@@ -20,6 +44,6 @@
     @Html.HiddenFor(m => m.EspacioID)
 
     <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a href="@Url.Action("Mostrar")" class="btn btn-secondary">Cancelar</a>
+    @Html.ActionLink("Cancelar", "Mostrar", new { id = Model.EspacioIdCifrado }, new { @class = "btn btn-secondary" })
 }
 

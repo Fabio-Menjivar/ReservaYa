@@ -59,7 +59,7 @@ namespace ReservaYa.Controllers
                 db.Espacios.Add(model);
                 db.SaveChanges();
                 /*
-                 * Después de SaveChanges(), Entity Framework actualiza el objeto espacio en memoria,
+                 * Después de SaveChanges(), Entity Framework actualiza el objeto espacioDT en memoria,
                  * incluyendo la propiedad EspacioID recién generada.
                  */
                 return RedirectToAction("Homepage");
@@ -161,10 +161,10 @@ namespace ReservaYa.Controllers
             return RedirectToAction("Homepage");
         }
 
-        //delete que desactiva el espacio pero no lo borra
+        //delete que desactiva el espacioDT pero no lo borra
 
 
-        public ActionResult Mostrar(string id)
+        public ActionResult Mostrar(string id) //idcrifrado
         {
             if (string.IsNullOrEmpty(id))
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -205,7 +205,7 @@ namespace ReservaYa.Controllers
             // Enviar un ViewModel estructurado
             var fechasWrapper = new ReservasFechaDisponiblesViewModel
             {
-                EspacioId = idReal,
+                EspacioIdCifrado = id,
                 EspacioName = espacio.Nombre,
                 Fechas = fechasVM
             };
@@ -215,6 +215,182 @@ namespace ReservaYa.Controllers
 
             return View(vm);
         }
+
+        // GET: Espacios/SubirImagen/5
+        public ActionResult SubirImagen(string idEspacio)
+        {
+            return View();
+        }
+
+        // POST: Espacios/SubirImagen/5
+        [HttpPost]
+        public ActionResult SubirImagen(string idEspacio, HttpPostedFileBase archivo)
+        {
+            var id = EncriptarService.DescriptarId(idEspacio);
+
+            if (archivo == null || archivo.ContentLength == 0)
+            {
+                ModelState.AddModelError("", "Debe seleccionar una imagen.");
+                return View();
+            }
+
+            // Validar extensión
+            var ext = Path.GetExtension(archivo.FileName).ToLower();
+            var permitidas = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+
+            if (!permitidas.Contains(ext))
+            {
+                ModelState.AddModelError("", "Formato de imagen no permitido.");
+                return View();
+            }
+
+            // Crear carpeta si no existe
+            var folder = Server.MapPath("~/Content/Uploads/Espacios/Images/");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            // Crear nombre único
+            string fileName = $"espacio_{id}_{Guid.NewGuid()}{ext}";
+            string rutaFinal = Path.Combine(folder, fileName);
+
+            // Guardar archivo
+            archivo.SaveAs(rutaFinal);
+
+            // Guardar en la BD
+            using (var db = new DEVELOSERSEntities())
+            {
+                var espacio = db.Espacios.Find(id);
+                if (espacio != null)
+                {
+                    espacio.ImagenPrev = fileName;
+                    db.SaveChanges();
+                }
+            }
+
+            return RedirectToAction("Mostrar", new { id=idEspacio });
+        }
+
+        // GET: Espacios/CambiarImagen/5
+        public ActionResult CambiarImagen(string idEspacio)
+        {
+            var idReal = EncriptarService.DescriptarId(idEspacio);
+            using (var db = new DEVELOSERSEntities ())
+            {
+                var imagen = db.Espacios.AsNoTracking().Where(x => x.EspacioID == idReal).Select(x=>x.ImagenPrev).FirstOrDefault();
+                ViewBag.ImagenActual = imagen;
+            }
+            return View();
+        }
+
+        // POST: Espacios/CambiarImagen/5
+        [HttpPost]
+        public ActionResult CambiarImagen(string idEspacio, HttpPostedFileBase archivo)
+        {
+            var id = EncriptarService.DescriptarId(idEspacio);
+
+            if (archivo == null || archivo.ContentLength == 0)
+            {
+                ModelState.AddModelError("", "Debe seleccionar una imagen.");
+                return View();
+            }
+
+            // Validar extensión
+            var ext = Path.GetExtension(archivo.FileName).ToLower();
+            var permitidas = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+
+            if (!permitidas.Contains(ext))
+            {
+                ModelState.AddModelError("", "Formato no permitido.");
+                return View();
+            }
+
+            // Carpeta destino
+            var carpeta = Server.MapPath("~/Content/Uploads/Espacios/Images/");
+            if (!Directory.Exists(carpeta))
+                Directory.CreateDirectory(carpeta);
+
+            // Nuevo nombre
+            string fileName = $"espacio_{id}_{Guid.NewGuid()}{ext}";
+            string rutaNueva = Path.Combine(carpeta, fileName);
+
+            using (var db = new DEVELOSERSEntities())
+            {
+                var espacio = db.Espacios.Find(id);
+                if (espacio == null)
+                    return HttpNotFound();
+
+                // Borrar imagen anterior
+                if (!string.IsNullOrEmpty(espacio.ImagenPrev))
+                {
+                    var rutaAnterior = Path.Combine(carpeta, espacio.ImagenPrev);
+                    if (System.IO.File.Exists(rutaAnterior))
+                        System.IO.File.Delete(rutaAnterior);
+                }
+
+                // Guardar nueva imagen
+                archivo.SaveAs(rutaNueva);
+
+                // Guardar en BD
+                espacio.ImagenPrev = fileName;
+                db.SaveChanges();
+            }
+
+            return RedirectToAction("Mostrar", new { id=idEspacio });
+        }
+
+        public ActionResult CambiarEstado(string idEspacio, bool activar)
+        {
+            // Desencriptar ID real
+            var id = EncriptarService.DescriptarId(idEspacio);
+
+            using (var db = new DEVELOSERSEntities())
+            {
+                // Cargar el espacio SIN AsNoTracking (para poder guardar cambios)
+                var espacio = db.Espacios
+                                .Where(x => x.EspacioID == id)
+                                .FirstOrDefault();
+
+                if (espacio == null)
+                {
+                    TempData["Error"] = "El espacio no existe.";
+                    return RedirectToAction("Index");
+                }
+
+                // VALIDACIONES
+                bool tieneImagen = !string.IsNullOrEmpty(espacio.ImagenPrev);
+
+                bool tieneDetalles = db.EspaciosDetalles
+                                       .Any(d => d.EspacioID == id);
+
+                bool tieneFechas = db.ReservasFechasDisponibles
+                                     .Any(f => f.EspacioID == id);
+
+                // SI FALTA ALGO → NO ACTIVAR
+                if (!tieneImagen || !tieneDetalles || !tieneFechas)
+                {
+                    TempData["Error"] =
+                        "No se puede activar el espacio. Debe tener: " +
+                        (tieneImagen ? "" : " Imagen |") +
+                        (tieneDetalles ? "" : " Detalles |") +
+                        (tieneFechas ? "" : " Fechas disponibles |");
+
+                    return RedirectToAction("Mostrar", new { id = idEspacio });
+                }
+
+                // SI TODO OK → Activar o desactivar
+                espacio.Disponible = activar;
+
+                db.SaveChanges();
+            }
+
+            TempData["Exito"] = activar
+                ? "El espacio ha sido activado correctamente."
+                : "El espacio ha sido desactivado correctamente.";
+
+            return RedirectToAction("Mostrar", new { id = idEspacio });
+        }
+
+
 
     }
 }
