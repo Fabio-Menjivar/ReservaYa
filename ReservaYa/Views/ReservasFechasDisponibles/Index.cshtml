@@ -8,8 +8,8 @@
 <h2>Fechas para Reservas – @Model.EspacioName</h2>
 
 <div>
-    @Html.ActionLink("Crear nueva fecha","Create", "FechasDisponibles", new { idEspacio = Model.EspacioIdCifrado }, new { @class = "btn btn-primary" })
-    @Html.ActionLink("Regresar", "Homepage","GestionEspacios",null, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Crear nueva fecha", "Create", "FechasDisponibles", new { idEspacio = Model.EspacioIdCifrado }, new { @class = "btn btn-primary" })
+    @Html.ActionLink("Regresar", "Homepage", "GestionEspacios", null, new { @class = "btn btn-primary" })
 </div>
 <br />
 
@@ -32,7 +32,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Fechas)
+                @foreach (var item in Model.Fechas.Where(f => f.Fecha.Date >= DateTime.Today))
                 {
                     var rowClass = item.Disponible ? "" : "table-danger";
 
@@ -45,9 +45,13 @@ else
                             @item.Tags
                         </td>
                         <td>
-                            @Html.ActionLink("Eliminar", "Delete",
-                                new { id = item.ReservaFechaID },
-                                new { @class = "btn btn-sm btn-danger" })
+                            @if (item.Fecha.Date >= DateTime.Today)
+                            {
+                                @Html.ActionLink("Eliminar", "Delete",
+                                    new { id = item.ReservaFechaID },
+                                    new { @class = "btn btn-sm btn-danger" })
+                            }
+
                         </td>
                     </tr>
                 }

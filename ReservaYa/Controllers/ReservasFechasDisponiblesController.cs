@@ -141,6 +141,7 @@ namespace ReservaYa.Controllers
 
                 // Guardar cambios
                 db.SaveChanges();
+                //error , cuando existe una reserva
 
                 return RedirectToAction(
                     "Mostrar",
