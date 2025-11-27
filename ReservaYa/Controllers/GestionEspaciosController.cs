@@ -371,8 +371,8 @@ namespace ReservaYa.Controllers
                     TempData["Error"] =
                         "No se puede activar el espacio. Debe tener: " +
                         (tieneImagen ? "" : " Imagen |") +
-                        (tieneDetalles ? "" : " Detalles |") +
-                        (tieneFechas ? "" : " Fechas disponibles |");
+                        (tieneDetalles ? "" : " Tarifa |") +
+                        (tieneFechas ? "" : " Fechas disponibles para reservar |");
 
                     return RedirectToAction("Mostrar", new { id = idEspacio });
                 }

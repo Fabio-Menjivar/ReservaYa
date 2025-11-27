@@ -40,7 +40,6 @@ namespace ReservaYa.Controllers
                     HoraFin = new TimeSpan(10, 0, 0),
                     Disponible = true
                 };
-
                 return View(model);
             }
         }
