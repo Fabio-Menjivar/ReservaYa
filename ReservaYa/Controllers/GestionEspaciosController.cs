@@ -26,17 +26,17 @@ namespace ReservaYa.Controllers
         {
             List<Espacios> todos = db.Espacios.AsNoTracking().ToList();
             //convertir a VM
-            var espaciosVM= transform.Convert(todos);
-            ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre");          
+            var espaciosVM = transform.Convert(todos);
+            ViewBag.CategoriaID = new SelectList(db.Categorias, "CategoriaID", "Nombre");
             return View(espaciosVM);
         }
 
         public ActionResult Create()
         {
             //crear nuevo usuario
-            Espacios espacio = new Espacios() 
-            {   ImagenPrev="",
-                Disponible=false
+            Espacios espacio = new Espacios()
+            { ImagenPrev = "",
+                Disponible = false
             };
             var espaciosVM = transform.Convert(espacio);
 
@@ -55,7 +55,7 @@ namespace ReservaYa.Controllers
                 espacio.Disponible = false;
                 //TODO: convertir view model a model
                 var model = transform.Reverse(espacio);
-                 //Guardamos cambios
+                //Guardamos cambios
                 db.Espacios.Add(model);
                 db.SaveChanges();
                 /*
@@ -104,7 +104,7 @@ namespace ReservaYa.Controllers
         [HttpGet]
         public ActionResult Delete(string id)
         {
-            if (!id.Any()|| id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (!id.Any() || id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
             var espacio = db.Espacios.Find(EncriptarService.DescriptarId(id));
             if (espacio == null) return HttpNotFound();
@@ -116,9 +116,10 @@ namespace ReservaYa.Controllers
         }
 
         // POST: Espacios/Delete/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(EspacioViewModel espacio)
+        public ActionResult Delete(EspacioViewModel espacio)  //borrado en cascada
         {
             var espacioOriginal = db.Espacios.Find(espacio.EspacioID);
             if (espacioOriginal == null)
@@ -159,18 +160,61 @@ namespace ReservaYa.Controllers
 
             return RedirectToAction("Homepage");
         }
-        public ActionResult DetallesEspacio()
+
+        //delete que desactiva el espacio pero no lo borra
+
+
+        public ActionResult Mostrar(string id)
         {
-            //TODO
-            /*
-             partial view de 
-                *valor x hora
-                *categoria
-             */
+            if (string.IsNullOrEmpty(id))
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            //viewbag lo necesario*
+            int idReal = EncriptarService.DescriptarId(id);
 
-            return View();
+            var espacio = db.Espacios.Find(idReal);
+            if (espacio == null)
+                return HttpNotFound();
+
+            // Convertir a EspacioViewModel
+            var vm = transform.Convert(espacio);
+
+
+            // Cargar nombre de categoría
+            ViewBag.CategoriaName = db.Categorias
+                .Where(c => c.CategoriaID == espacio.CategoriaID)
+                .Select(c => c.Nombre)
+                .FirstOrDefault();
+
+            // ======================================================
+            // NUEVO → Cargar Fechas Disponibles usando tu ViewModel
+            // ======================================================
+            var fechasVM = (from e in db.ReservasFechasDisponibles
+                            where e.EspacioID == espacio.EspacioID
+                            join u in db.FechasDisponibles on e.FechaDisponibleID equals u.FechaDisponibleID
+                            select new ReservaFechaDisponibleItemVM // Proyectamos directamente al tipo VM
+                            {
+                                ReservaFechaID = e.ReservaFechaID,
+                                FechaDisponibleID = u.FechaDisponibleID,
+                                Fecha = u.Fecha,
+                                HoraInicio = u.HoraInicio,
+                                HoraFin = u.HoraFin,
+                                Tags = u.Tags,
+                                Disponible = u.Disponible
+                            }).ToList();
+
+            // Enviar un ViewModel estructurado
+            var fechasWrapper = new ReservasFechaDisponiblesViewModel
+            {
+                EspacioId = idReal,
+                EspacioName = espacio.Nombre,
+                Fechas = fechasVM
+            };
+
+            ViewBag.FechasDisponibles = fechasWrapper;
+            // (Si quieres evitar ViewBag, te explico cómo integrarlo directo en la vista Mostrar)
+
+            return View(vm);
         }
+
     }
 }

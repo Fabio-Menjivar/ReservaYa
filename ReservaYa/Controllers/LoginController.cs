@@ -138,7 +138,7 @@ namespace ReservaYa.Controllers
                 FechaNacimiento = FechaNacimiento,
                 Correo = correoBytes,
                 Contrasena = contraBytes,
-                RolID = 2, // Usuario común
+                RolID = 1, // Usuario común
                 Activo = true
             };
 

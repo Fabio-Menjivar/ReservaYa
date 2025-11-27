@@ -1,0 +1,193 @@
+﻿@model ReservaYa.Models.Extras.EspacioViewModel
+
+@{
+    ViewBag.Title = "Detalles del espacio";
+
+    // ViewBag con las fechas, enviadas desde el controlador
+    var fechasVM = ViewBag.FechasDisponibles
+                   as ReservaYa.Models.Extras.ReservasFechaDisponiblesViewModel;
+}
+
+<a href="@Url.Action("Homepage", "GestionEspacios")" class="btn btn-warning btn-sm mb-3">
+    ← Regresar
+</a>
+
+<h2 class="mb-4">@Model.Nombre</h2>
+
+<div class="row">
+    <!-- ===================== -->
+    <!--   COLUMNA IZQUIERDA   -->
+    <!-- ===================== -->
+    <div class="col-md-8">
+
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                Información general
+            </div>
+            <div class="card-body">
+
+                <h5 class="card-title">@Model.Nombre</h5>
+
+                <p><strong>Dirección:</strong> @Model.Direccion</p>
+
+                <p>
+                    <strong>Ubicación:</strong>
+                    @if (!string.IsNullOrEmpty(Model.UbicacionEnlace))
+                    {
+                        <a href="@Model.UbicacionEnlace" target="_blank">Ver en Google Maps</a>
+                    }
+                    else
+                    {
+                        <span>N/A</span>
+                    }
+                </p>
+
+                <p>
+                    <strong>Categoría:</strong>
+                    @ViewBag.CategoriaName
+                </p>
+
+                <p><strong>Capacidad máxima:</strong> @Model.Capacidad personas</p>
+
+                <p>
+                    <strong>Disponible:</strong>
+                    @Html.DisplayFor(x=>x.Disponible)
+                </p>
+            </div>
+        </div>
+
+        <!-- ACCESIBILIDAD -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Accesibilidad
+            </div>
+            <div class="card-body">
+
+                <p>
+                    <strong>Estacionamiento:</strong>
+                    @(Model.Estacionamiento ? "Sí" : "No")
+                </p>
+
+                <p>
+                    <strong>Sanitarios:</strong>
+                    @(Model.Sanitarios ? "Sí" : "No")
+                </p>
+
+                <p>
+                    <strong>Acceso silla ruedas:</strong>
+                    @(Model.AccesoSillaRuedas ? "Sí" : "No")
+                </p>
+
+            </div>
+        </div>
+
+        <!-- ACCIONES -->
+        <div class="mb-4">
+            <h4>Acciones</h4>
+
+            @Html.ActionLink("Editar Espacio", "Update",
+                new { id = Model.EspacioIdCifrado },
+                new { @class = "btn btn-warning btn-sm" })
+
+            @Html.Raw("&nbsp;")
+
+            @Html.ActionLink("Eliminar", "Delete",
+                new { id = Model.EspacioIdCifrado },
+                new { @class = "btn btn-danger btn-sm" })
+
+            @Html.Raw("&nbsp;")
+
+            @Html.ActionLink("Almanaque", "Index", "ReservasFechasDisponibles",
+                new { idEspacio = Model.EspacioIdCifrado },
+                new { @class = "btn btn-info btn-sm" })
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!--   COLUMNA DERECHA     -->
+    <!-- ===================== -->
+    <div class="col-md-4">
+
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                Imagen del espacio
+            </div>
+
+            <div class="card-body text-center">
+
+                @if (!string.IsNullOrEmpty(Model.ImagenPrev))
+                {
+                    <img src="@Model.ImagenPrev" alt="Imagen del espacio"
+                         class="img-fluid rounded border" />
+                }
+                else
+                {
+                    <div class="text-muted">Sin imagen disponible</div>
+                }
+
+                <a class="btn btn-outline-primary btn-sm mt-3">
+                    Cambiar imagen
+                </a>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================= -->
+<!--  FECHAS DISPONIBLES      -->
+<!-- ========================= -->
+
+<div class="card mt-4">
+    <div class="card-header bg-dark text-white">
+        Fechas disponibles
+    </div>
+
+    <div class="card-body">
+
+        @if (fechasVM != null && fechasVM.Fechas != null && fechasVM.Fechas.Any())
+        {
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Fecha</th>
+                        <th>Horario</th>
+                        <th>Tags</th>
+                        <th>Disponible</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (int i = 0; i < fechasVM.Fechas.Count; i++)
+                    {
+                        var f = fechasVM.Fechas[i];
+
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@f.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@($"{f.HoraInicio} - {f.HoraFin}")</td>
+                            <td>@f.Tags</td>
+                            <td>@(f.Disponible ? "Sí" : "No")</td>
+
+                            <td>
+                                <a href="#"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Editar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">No hay fechas disponibles registradas.</p>
+        }
+
+    </div>
+</div>

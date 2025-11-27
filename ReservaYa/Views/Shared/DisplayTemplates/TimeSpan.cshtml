@@ -1,10 +1,11 @@
-﻿@model DateTime?
+﻿@model TimeSpan?
 @{
     Layout = null;
 }
 
-<input type="date"
+<input type="time"
        id="@ViewData.TemplateInfo.GetFullHtmlFieldId("")"
        name="@ViewData.TemplateInfo.GetFullHtmlFieldName("")"
-       value="@(Model?.ToString("yyyy-MM-dd") ?? "")"
+       value="@(Model.HasValue ? Model.Value.ToString(@"hh\:mm") : "")"
        required />
+
