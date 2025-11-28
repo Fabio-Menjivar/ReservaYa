@@ -79,13 +79,16 @@ namespace ReservaYa.Controllers
                 HoraFin = rfd.FechasDisponibles.HoraFin
             };
 
+            
             // Para dropdown de espacios
             ViewBag.Espacios = _context.Espacios
                 .Select(e => new SelectListItem
                 {
                     Value = e.EspacioID.ToString(),
-                    Text = e.Nombre
+                    Text = e.Nombre,
+                    Selected = (e.EspacioID == id)   // Seleccionar por defecto
                 }).ToList();
+
 
             return View(vm);
         }

@@ -122,9 +122,27 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-building"></i></span>
                     </div>
-                    @Html.DropDownList("EspacioID", (List<SelectListItem>)ViewBag.Espacios, "Seleccione un espacio", new { @class = "form-control custom-input input-with-icon" })
+
+                    @{
+                        var espaciosList = (List<SelectListItem>)ViewBag.Espacios;
+                        var selectedValue = espaciosList.First(e => e.Selected).Value;
+                    }
+
+                    @Html.Hidden("EspacioID", selectedValue)
+
+                    @Html.DropDownList(
+                        "EspacioID",
+                        espaciosList,
+                        new
+                             {
+                            @class = "form-control custom-input input-with-icon",
+                            disabled = "disabled"
+                        }
+                    )
                 </div>
             </div>
+
+
 
             @* 2. Fecha *@
             <div class="form-group mb-4">
