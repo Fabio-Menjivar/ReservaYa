@@ -1,4 +1,6 @@
-﻿using System;
+﻿// LoginController.cs
+
+using System;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
@@ -29,7 +31,7 @@ namespace ReservaYa.Controllers
             return View();
         }
 
-        // POST: Login/Login (Lógica de Comparación de Bytes Corregida)
+        // POST: Login/Login
         [HttpPost]
         public ActionResult Login(string Correo, string Contrasena)
         {
@@ -43,35 +45,28 @@ namespace ReservaYa.Controllers
             var usuario = db.Usuarios
                 .Where(u => u.Activo == true)
                 .AsEnumerable()
-                .FirstOrDefault(u =>
-                    Encoding.UTF8.GetString(u.Correo).Trim()
-                        .Equals(Correo.Trim(), StringComparison.OrdinalIgnoreCase)
-                );
+                .FirstOrDefault(u => Encoding.UTF8.GetString(u.Correo).Trim()
+                    .Equals(Correo.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (usuario == null)
             {
-                // Si el usuario no existe o está inactivo.
                 ViewBag.Mensaje = "Correo o contraseña incorrectos.";
                 return View();
             }
 
-            // 2. Comparamos la Contraseña (En Bytes)
+            // 2. Comparamos la Contraseña
+            byte[] contraDB = usuario.Contrasena;
+            byte[] contraInput = Encoding.UTF8.GetBytes(Contrasena.Trim());
 
-            // Convertimos la contraseña ingresada a su arreglo de bytes (como se hizo en el registro).
-            byte[] contraBytesInput = Encoding.UTF8.GetBytes(Contrasena.Trim());
-
-            // Limpiamos los arrays de bytes de relleno (padding) si existen
-            // Esto es crucial para la comparación binaria
-            byte[] contraDB = usuario.Contrasena.Where(b => b != 0).ToArray();
-            byte[] contraInput = contraBytesInput.Where(b => b != 0).ToArray();
-
-            // 3. Verificamos la igualdad de los bytes limpios
             if (contraDB.SequenceEqual(contraInput))
             {
                 // INICIO DE SESIÓN EXITOSO
                 Session["UsuarioID"] = usuario.UsuarioID;
                 Session["NombreUsuario"] = $"{usuario.Nombres} {usuario.Apellidos}";
                 Session["RolID"] = usuario.RolID;
+
+                // 🚨 CAMBIO: Guardar la ruta de la imagen en la Sesión
+                Session["RutaImagen"] = usuario.RutaImagen;
 
                 // Redirección por Rol
                 if (usuario.RolID == 1)
@@ -99,17 +94,17 @@ namespace ReservaYa.Controllers
             return View();
         }
 
-        // POST: Login/Register 
+        // POST: Login/Register
         [HttpPost]
         public ActionResult Register(string Nombres, string Apellidos, DateTime FechaNacimiento, string Correo, string Contrasena)
         {
-            if (string.IsNullOrEmpty(Correo) || string.IsNullOrEmpty(Contrasena))
+            if (string.IsNullOrEmpty(Nombres) || string.IsNullOrEmpty(Apellidos) || string.IsNullOrEmpty(Correo) || string.IsNullOrEmpty(Contrasena))
             {
-                ViewBag.Mensaje = "Todos los campos son obligatorios.";
+                ViewBag.Mensaje = "Por favor, complete todos los campos.";
                 return View();
             }
-            // VALIDACIÓN de edad mínima 18 años
-            if (FechaNacimiento > DateTime.Now.AddYears(-18))
+
+            if ((DateTime.Now.Year - FechaNacimiento.Year) < 18)
             {
                 ViewBag.Mensaje = "Debe ser mayor de 18 años para registrarse.";
                 return View();
@@ -138,8 +133,9 @@ namespace ReservaYa.Controllers
                 FechaNacimiento = FechaNacimiento,
                 Correo = correoBytes,
                 Contrasena = contraBytes,
-                RolID = 1, // Usuario común
-                Activo = true
+                RolID = 2, // Usuario común
+                Activo = true,
+                RutaImagen = null
             };
 
             db.Usuarios.Add(nuevo);

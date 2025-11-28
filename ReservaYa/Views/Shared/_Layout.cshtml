@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@* _Layout.cshtml *@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -12,8 +13,19 @@
 <body>
     @{
         // 1. Definir variables de estado de sesión
-        int? usuarioId = Session["UsuarioID"] as int?; // Null si no está logueado
-        int rolId = (int?)Session["RolID"] ?? 0; // 1: Admin, 2: Cliente, 0: No logueado
+        int? usuarioId = Session["UsuarioID"] as int?;
+        int rolId = (int?)Session["RolID"] ?? 0;
+
+        // Obtener la ruta de la imagen de la sesión
+        string rutaImagenPerfil = Session["RutaImagen"] as string;
+
+        // Definir la URL final de la imagen con ruta por defecto
+        string imagenUrl = !string.IsNullOrEmpty(rutaImagenPerfil)
+            ? rutaImagenPerfil
+            : "/Content/Uploads/Perfiles/default-profile.png";
+
+        // Anti-caché (IMPORTANTE para la visualización inmediata)
+        string imagenUrlAntiCache = imagenUrl + "?t=" + DateTime.Now.Ticks;
     }
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
         <div class="container">
@@ -24,21 +36,20 @@
             </button>
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav me-auto mb-2 mb-sm-0">
-
-                    @* 🏠 HOME: Visible solo si NO es administrador (rolId != 1) *@
+                    @* HOME: Visible solo si NO es administrador (rolId != 1) *@
                     @if (rolId != 1)
                     {
                         <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
                     }
 
-                    @* 🛠️ Enlaces de Administrador (RolID = 1) *@
+                    @* Enlaces de Administrador (RolID = 1) *@
                     @if (rolId == 1)
                     {
                         <li>@Html.ActionLink("Panel de Administrador", "Homepage", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
                         <li>@Html.ActionLink("Crea tu propio espacio", "Create", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
                     }
 
-                    @* 🧑‍💻 Enlaces de Cliente (RolID = 2) *@
+                    @* Enlaces de Cliente (RolID = 2) *@
                     @if (rolId == 2)
                     {
                         <li>@Html.ActionLink("Gestiona tus reservas", "MisReservas", "GestionReservas", new { area = "" }, new { @class = "nav-link" })</li>
@@ -46,54 +57,55 @@
                 </ul>
 
                 <ul class="navbar-nav ms-auto mb-2 mb-sm-0">
-                    @* 🔒 Iniciar Sesión / Registrarse: Visible solo si NO hay usuario logueado *@
+                    @* Iniciar Sesión / Registrarse: Visible solo si NO hay usuario logueado *@
                     @if (usuarioId == null)
                     {
                         <li>@Html.ActionLink("Iniciar Sesión", "Login", "Login", new { area = "" }, new { @class = "nav-link" })</li>
                         <li>@Html.ActionLink("Crear cuenta nueva", "Register", "Login", new { area = "" }, new { @class = "nav-link" })</li>
                     }
-                    @* 🚪 Cerrar Sesión: Visible si hay usuario logueado *@
+                    @*Cerrar Sesión: Visible si hay usuario logueado *@
                     else
                     {
                         <li class="nav-item">
                             @Html.ActionLink($"Cerrar Sesión ({Session["NombreUsuario"]})", "Logout", "Login", new { area = "" }, new { @class = "nav-link" })
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" href="@Url.Action("Perfil", "Cuenta")">
+                                <img src="@Url.Content(imagenUrlAntiCache)"
+                                     alt="Perfil"
+                                     class="rounded-circle me-2"
+                                     style="width: 25px; height: 25px; object-fit: cover; border: 1px solid #fff;" />
+                                Mi Perfil
+                            </a>
+                        </li>
                     }
-                    <li class="nav-item">
-                        <a class="nav-link" href="@Url.Action("Perfil", "Cuenta")">Mi Perfil</a>
-                    </li>
                 </ul>
             </div>
         </div>
     </nav>
-
     <div class="container body-content">
         @RenderBody()
         <hr />
     </div>
 
-    <footer class="bg-dark text-light pt-5 pb-3 mt-5">
+    @* Footer (asumiendo que estaba en el layout) *@
+    <footer class="bg-dark text-light pt-5">
         <div class="container">
             <div class="row">
-
                 <div class="col-md-4 mb-4">
-                    <h3 class="fw-bold text-uppercase">DEVELO₱ERS</h3>
-                    <p class="text-muted">Reserva Inteligente, Espacios Eficientes, tales como Salones educativos y Laboratorios Informáticos</p>
+                    <h5 class="fw-bold">ReservaYa</h5>
+                    <p>La plataforma ideal para encontrar y reservar espacios únicos para tus eventos o proyectos.</p>
                 </div>
 
                 <div class="col-md-4 mb-4">
-                    <h5 class="fw-bold">Enlaces</h5>
+                    <h5 class="fw-bold">Enlaces Útiles</h5>
                     <ul class="list-unstyled">
-                        @* HOME: Visible solo si NO es administrador (rolId != 1) *@
-                        @if (rolId != 1)
-                        {
-                            <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
-                        }
+                        <li>@Html.ActionLink("Home", "Index", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
 
-                        @* Lógica de Admin en el Footer *@
+                        @* Lógica de Administrador en el Footer *@
                         @if (rolId == 1)
                         {
-                            <li>@Html.ActionLink("Panel de Administrador", "Homepage", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
                             <li>@Html.ActionLink("Crea tu propio espacio", "Create", "GestionEspacios", new { area = "" }, new { @class = "nav-link" })</li>
                         }
 
@@ -124,6 +136,7 @@
             </div>
         </div>
     </footer>
+
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")

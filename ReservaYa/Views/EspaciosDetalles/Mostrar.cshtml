@@ -1,0 +1,94 @@
+﻿@model ReservaYa.Models.Espacios
+
+@{
+    ViewBag.Title = "Mostrar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h3>Detalles de Espacio</h3>
+<a href="@Url.Action("HomePage","GestionEspacios")" class="btn btn-sm btn-warning">Regresar</a>
+
+<div class="row align-items-start">
+    <div class="col">
+        <div>
+            <h1>@Model.Nombre</h1>
+            <p>@Model.Direccion</p>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-map-pin"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M18.364 4.636a9 9 0 0 1 .203 12.519l-.203 .21l-4.243 4.242a3 3 0 0 1 -4.097 .135l-.144 -.135l-4.244 -4.243a9 9 0 0 1 12.728 -12.728zm-6.364 3.364a3 3 0 1 0 0 6a3 3 0 0 0 0 -6z" /></svg>
+            <a href="@Model.UbicacionEnlace">Enlace Google MAPS</a>
+
+            <div class="row align-items-start">
+                <div class="col">
+                    <div>
+
+                        <h3>Categoria</h3>
+                        <p>@ViewBag.CategoriaName</p>
+
+                    </div>
+
+                    <div>
+                        <h3>Valor por hora</h3>
+                        <p>@ViewBag.EspaciosDtVh</p>
+                        <a class="btn btn-close">Editar</a>
+                    </div>
+
+
+                </div>
+                <div class="col">
+                    <h3>Acessibilidad</h3>
+                    <div>
+                        @Html.DisplayFor(x => x.Estacionamiento)
+                        @Html.TextBoxFor(x => x.Estacionamiento)
+                    </div>
+
+                    <div>
+                        @Html.DisplayFor(x => x.Sanitarios)
+                        @Html.TextBoxFor(x => x.Sanitarios)
+                    </div>
+
+                    <div>
+                        @Html.DisplayFor(x => x.AccesoSillaRuedas)
+                        @Html.TextBoxFor(x => x.AccesoSillaRuedas)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <p>Probando 02</p>
+        <img src="@Model.ImagenPrev" alt="Imagen de Prueba" />
+    </div>
+</div>
+<div>
+    <div>
+        <table class="table table-striped table-bordered mt-4">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Fecha disponible</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < ViewBag.FechasDp.Count; i++)
+                {                    
+                    var rowClass = (i % 2 == 0) ? "table-light" : "table-secondary";
+
+                    <tr class="@rowClass">
+                        <td>@(i + 1)</td>
+                        <td>@(((DateTime)ViewBag.FechasDp[i]).ToString("dd/MM/yyyy"))</td>
+                        <td>
+                            <a href="#"
+                               class="btn btn-sm btn-outline-primary">
+                                Editar fecha
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+</div>

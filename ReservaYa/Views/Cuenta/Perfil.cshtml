@@ -1,5 +1,4 @@
-﻿
-@model ReservaYa.Models.Usuarios
+﻿@model ReservaYa.Models.Usuarios
 
 @{
     ViewBag.Title = "Mi Perfil";
@@ -10,6 +9,24 @@
     <h2 class="text-center mb-4">Mi Perfil</h2>
 
     <div class="card shadow-sm p-4" style="max-width: 600px; margin: auto;">
+
+        <div class="text-center mb-4">
+            @{
+                // Usa la nueva propiedad RutaImagen. Si está vacía, usa la imagen por defecto.
+                string rutaImagen = !string.IsNullOrEmpty(Model.RutaImagen)
+                    ? Model.RutaImagen
+                    : "/Content/Uploads/perfiles/default-profile.png"; 
+            }
+            <img src="@rutaImagen"
+                 alt="Foto de Perfil"
+                 class="rounded-circle"
+                 style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #007bff;" />
+
+            <br />
+            <a href="@Url.Action("CambiarImagen", "Cuenta")" class="btn btn-sm btn-outline-secondary mt-2">
+                Cambiar Imagen
+            </a>
+        </div>
         <h4 class="mb-3">Información Personal</h4>
 
         <p><strong>Nombre:</strong> @Model.Nombres</p>

@@ -304,12 +304,14 @@
     <Content Include="Views\FechasDisponibles\Create.cshtml" />
     <Content Include="Views\Cuenta\CambiarCredenciales.cshtml" />
     <Content Include="Views\Cuenta\Perfil.cshtml" />
+    <Content Include="Views\Cuenta\CambiarImagen.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Content\Images\" />
     <Folder Include="Content\Uploads\Espacios\Docs\" />
     <Folder Include="Content\Uploads\Espacios\Videos\" />
+    <Folder Include="Content\Uploads\Perfil\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

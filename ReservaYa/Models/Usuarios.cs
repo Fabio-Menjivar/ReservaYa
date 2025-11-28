@@ -28,6 +28,7 @@ namespace ReservaYa.Models
         public byte[] Contrasena { get; set; }
         public int RolID { get; set; }
         public bool Activo { get; set; }
+        public string RutaImagen { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Reservas> Reservas { get; set; }

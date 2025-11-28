@@ -1,0 +1,39 @@
+﻿@{
+    ViewBag.Title = "Cambiar Imagen de Perfil";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Cambiar Imagen de Perfil</h2>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">@TempData["Mensaje"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @* Usar BeginForm con enctype="multipart/form-data" para subir archivos *@
+    @using (Html.BeginForm("CambiarImagen", "Cuenta", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="card p-4 shadow-sm" style="max-width: 450px; margin: auto;">
+
+            <p class="text-muted">
+                Selecciona una nueva imagen para tu perfil.
+            </p>
+
+            <div class="form-group">
+                <label for="nuevaImagen">Subir Imagen</label>
+                @* El nombre 'nuevaImagen' DEBE coincidir con el parámetro en el Action del Controller *@
+                <input type="file" id="nuevaImagen" name="nuevaImagen" class="form-control-file" accept="image/*" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mt-3">Subir y Guardar Imagen</button>
+            <a href="@Url.Action("Perfil", "Cuenta")" class="btn btn-secondary btn-block mt-2">Cancelar</a>
+        </div>
+    }
+</div>

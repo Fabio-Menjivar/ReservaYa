@@ -94,6 +94,7 @@
           <Property Name="Contrasena" Type="varbinary" MaxLength="64" Nullable="false" />
           <Property Name="RolID" Type="int" Nullable="false" />
           <Property Name="Activo" Type="bit" Nullable="false" />
+          <Property Name="RutaImagen" Type="nvarchar" MaxLength="500" />
         </EntityType>
         <Association Name="FK_Espacios_Categorias">
           <End Role="Categorias" Type="Self.Categorias" Multiplicity="1" />
@@ -357,6 +358,7 @@
           <Property Name="Activo" Type="Boolean" Nullable="false" />
           <NavigationProperty Name="Reservas" Relationship="Self.FK_Reservas_Usuarios" FromRole="Usuarios" ToRole="Reservas" />
           <NavigationProperty Name="Roles" Relationship="Self.FK_Usuarios_Rol" FromRole="Usuarios" ToRole="Roles" />
+          <Property Name="RutaImagen" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="FK_Espacios_Categorias">
           <End Role="Categorias" Type="Self.Categorias" Multiplicity="1" />
@@ -614,6 +616,7 @@
           <EntitySetMapping Name="Usuarios">
             <EntityTypeMapping TypeName="DevelosersModel.Usuarios">
               <MappingFragment StoreEntitySet="Usuarios">
+                <ScalarProperty Name="RutaImagen" ColumnName="RutaImagen" />
                 <ScalarProperty Name="UsuarioID" ColumnName="UsuarioID" />
                 <ScalarProperty Name="Nombres" ColumnName="Nombres" />
                 <ScalarProperty Name="Apellidos" ColumnName="Apellidos" />
